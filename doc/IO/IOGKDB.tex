@@ -101,8 +101,8 @@ The six fundamental reference quantities are:
 \begin{itemize}
 \item $q_\tref=e=1.6022\times10^{-19}\U{C}$, the positive elementary charge
 \item $m_\tref=m_D=3.3445\times10^{-27}\U{kg}$, the Deuterium mass
-\item $T_\tref=T_e(r_0,\theta=0)$, the reference electron temperature
-\item $n_\tref=n_e(r_0,\theta=0)$, the reference electron density
+\item $T_\tref=T_e(r_0,\theta=0)$, the electron temperature at $\theta=0$
+\item $n_\tref=n_e(r_0,\theta=0)$, the electron density at $\theta=0$
 \item $L_\tref=R_0$, the reference length
 \item $B_\tref=B_t(R_0)$, the reference magnetic field (toroidal magnetic field at the flux surface center)
 \end{itemize}
@@ -117,7 +117,10 @@ For convenience, the following reference quantities are defined:
 
 \chapter{Inputs}
 \section{Species}
-For each kinetic species $s$, the background distribution function is supposed to be a local Maxwellian. Poloidal asymmetry in the background induced by centrifugal effects is allowed. Poloidally asymmetric quantities are defined at $\theta=0$. Poloidal asymmetry induced by anisotropic temperatures is not included yet, but could be introduced if need be. 
+For each species $s$, the background distribution function is supposed to be a local Maxwellian. Poloidal asymmetry in the background induced by centrifugal effects is allowed. Poloidally asymmetric quantities are given in input at $\theta=0$. Poloidal asymmetry induced by anisotropic temperatures is not included yet, but could be introduced if need be. 
+\subsection{Number of ions}
+At this stage, the database only stores runs with one kinetic electron species (adiabatic electrons not allowed) and an arbitrary number of kinetic ions species. $N_\textrm{ion}$. The total number of species is  $N_\textrm{ion}+1$.
+
 \subsection{Charge}
 $$Z_{sN}=\frac{q_s}{q_\tref}$$
 \subsection{Mass}
@@ -172,7 +175,11 @@ $$\hat{s}=\frac{r}{q}\frac{\partial q}{\partial r}$$
 
 \subsection{Pressure gradient}
 $$\beta'_N = -\frac{2\mu_0 L_\tref}{B_\tref^2 }\frac{\partial p}{\partial r}$$
-with $p$ the total plasma pressure (i.e. the pressure term entering the Grad-Shafranov equation). $\beta'_N$ is a quantity related to the magnetic equilibrium and does not need to be consistent with the gradients ($L_\tref/L_{n_s}$, $L_\tref/L_{T_s}$) specified for the kinetic species. 
+with $p$ the total plasma pressure (i.e. the pressure term entering the Grad-Shafranov equation). $\beta'_N$ is a quantity related to the magnetic equilibrium and does not need to be consistent with the gradients ($L_\tref/L_{n_s}$, $L_\tref/L_{T_s}$) specified for the kinetic species.\\
+Note that the low $\beta'$ approximation for the curvature drift, i.e. 
+$$\mathbf{b}\times(\mathbf{b}\cdot\nabla\mathbf{n})=\frac{1}{2}\mathbf{b}\times\nabla r\frac{2\mu_0}{B^2}\frac{\partial p}{\partial r} + \frac{\mathbf{B}\times\nabla B}{B^2} \sim  \frac{\mathbf{B}\times\nabla B}{B^2}, $$
+is not allowed in the database as it is inconsistent with the use of a finite $\beta'_N$ for the equilibrium description. 
+
 
 \subsection{Plasma shape}
 A general description of local magnetic equilibria particularly convenient for gyrokinetic codes was introduced by J. Candy in \cite {Candy:PPCF2009}. It is used in the GKDB with a few minor modifications.
@@ -187,8 +194,8 @@ To allow regressions in the database the flux surface contours are parametrised 
 The specification of the local magnetic equilibrium then requires $4N_{sh}+2$ terms, given at $r=r_0$, where $N_{sh}$ is the degree of the expansion: $\{c_n,s_n,\frac{\partial c_n}{\partial r_N},\frac{\partial s_n}{\partial r_N}\}$. To start with, $N_{sh}$ is set to 8. It should allow to capture most of the plasma shapes but in any case $N_{sh}$ can be increased at a later stage if needed.\\
 
 \section{Modes}
-As almost every gyrokinetic codes use a different coordinate system, the Fourier modes needs to be specified in a coordinate free form.\\
-To define this coordinate free form, let's first give generic names, $x$ and $y$, to the radial and binormal coordinates used in gyrokinetic codes to describe the turbulence in the plane perpendicular to the magnetic field. The radial coordinate $x$ is assumed to be a flux label (i.e. $\mathbf{B}\cdot \nabla x =0$).
+As almost every gyrokinetic codes use a different coordinate system, it is convenient to specify the Fourier modes in a coordinate free form.\\
+To define this coordinate free form, let's first call, $x$ and $y$, the radial and binormal coordinates used in gyrokinetic codes to describe the turbulence in the plane perpendicular to the magnetic field. The radial coordinate $x$ is assumed to be a flux label (i.e. $\mathbf{B}\cdot \nabla x =0$).
 In a spectral representation, perturbed quantities are then written:
 \begin{equation}
  f(x,y,\theta) = \sum_{k_x,k_y} \hat{f}(k_x,k_y,\theta)\exp[ik_x x + ik_y y] 
@@ -231,16 +238,23 @@ is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$,
 Sometimes, collisions of electrons on main ions are artificially enhanced by a given factor to mimic the impact of impurity ions. If this was done in the simulation, the enhancement factor is specified with the parameter $Z_\textrm{eff}$.
 
 
-\section{Various physics} \label{sec:various}
+\section{Physics switches} \label{sec:switches}
+All gyrokinetic codes have a full set of switches to adjust the complexity of the physical description. Some of these possibilites are retained for the database entries. 
+Electromagnetic fluctuations:
 \begin{itemize}
-\item adiabatic electrons
-\item 
-\item electromagnetic switches ($A_\parallel$, $A_\perp$)
-\item collisionality switches: pitch angle scattering only or pitch angle and energy scattering? e-i collisions only or e-i, e-e, i-e and i-i? Energy and momentum conserving operator? e-i collisions enhancement by factor Zeff? Test particle operator only and ad-hoc conserving terms or field particle part implemented (as in GS2)? What is the value(s) taken for the Coulomb logarithm? The implementation of collisions is highly code dependent...
-\item treatment of the curvature drift (low beta approximation or not)
+\item Are the fluctuations of the parallel electromagnetic vector potential $A_\parallel$ retained (magnetic flutter)?
+\item Are the fluctuations of the perpendicular electromagnetic vector potential retained (magnetic compression)?
 \end{itemize}
-
-\textit{YC: to be completed...}
+Collisions:
+\begin{itemize}
+\item Pitch angle scattering only is retained (as opposed to pitch angle and energy scattering)
+\item Electron-ion collisions only are retained (as opposed all interspecies collisions)
+\item Enhancement factor for electron to (main) ion collisions. This is typically used to mimic the impact of impuritites on the electron-ions collisions.
+\item Is momentum conservation ensured?
+\item Is energy conservation ensured?
+\item Are FLR retained in the collision treatment?
+\end{itemize}
+Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. Jpwever, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,
 
 \chapter{Outputs}
 \section{Mode amplitude}
