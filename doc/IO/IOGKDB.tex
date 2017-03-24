@@ -142,11 +142,15 @@ All species are assumed to have a purely toroidal flow $\mathbf{v}_s=R^2\omega_\
 $$\omega_{\Phi}=-s_j\frac{1}{|\nabla \Psi|}\frac{\partial \Phi}{\partial r},$$
 with $\Phi$ the background electrostatic potential. This assumption is consistent with the ordering used in local gyrokinetic codes, as $\omega_\Phi$ is the lowest order flow in a $\rho_*$ expansion according to neoclassical theory \cite{Hirshman:NF1981}.
 
-
 \subsection{Toroidal velocity gradient}
 $$u'_{sN}=-\frac{L_\tref^2}{\vthref}\frac{\partial \omega_{\varphi,s}}{\partial r}$$
 Positive for peaked profiles of a flow in the direction of $\nabla \varphi$.\\
 Note that the possibility to have a species dependent toroidal velocity gradient with $\omega_{\varphi,s}\neq \omega_\Phi$ is retained. Strictly speaking, this is inconsistent with the local limit assumption $\rho_*\rightarrow 0$ but can be interesting for the interpretation of the experiments (see the discussion in section II of \cite{Camenen:PoP2016} for more details).
+
+
+%\subsection{Summary table}
+%\begin{tabular}
+%\end{tabular}
 
 \section{Magnetic equilibrium}
 The magnetic equilibrium in the vicinity of the flux surface of interest is specified by the parameters described in this section, given at $r=r_0$.
@@ -176,7 +180,7 @@ $$\hat{s}=\frac{r}{q}\frac{\partial q}{\partial r}$$
 \subsection{Pressure gradient}
 $$\beta'_N = -\frac{2\mu_0 L_\tref}{B_\tref^2 }\frac{\partial p}{\partial r}$$
 with $p$ the total plasma pressure (i.e. the pressure term entering the Grad-Shafranov equation). $\beta'_N$ is a quantity related to the magnetic equilibrium and does not need to be consistent with the gradients ($L_\tref/L_{n_s}$, $L_\tref/L_{T_s}$) specified for the kinetic species.\\
-Note that the low $\beta'$ approximation for the curvature drift, i.e. 
+Note that the low $\beta'$ approximation for the curvature drift, i.e. the approximation
 $$\mathbf{b}\times(\mathbf{b}\cdot\nabla\mathbf{n})=\frac{1}{2}\mathbf{b}\times\nabla r\frac{2\mu_0}{B^2}\frac{\partial p}{\partial r} + \frac{\mathbf{B}\times\nabla B}{B^2} \sim  \frac{\mathbf{B}\times\nabla B}{B^2}, $$
 is not allowed in the database as it is inconsistent with the use of a finite $\beta'_N$ for the equilibrium description. 
 
@@ -221,6 +225,13 @@ The normalised coordinate independent binormal mode number is defined as
 
 An alternative convenient specification of the binormal mode number is the effective poloidal mode number normalised to the ion Larmor radius  $nq\rho_\tref/r_0$  \cite{Merlo:PoP2016}. This definition is also coordinate independent and related to a physical quantity. It will not be used here as there is no simple equivalent to specify the radial wave vector.
 
+\section{Number of poloidal turns}
+In the spectral representation of a flux-tube domain, the periodicity of the torus in the poloidal direction leads to the coupling of radial modes in the parallel direction:
+$$\hat{f}(k_x,k_y,\theta-\pi)=\hat{f}(k_x+\Delta k_x,k_y,\theta+\pi)$$
+with $\Delta k_x$ depending on the magnetic shear.\\
+A flux-tube extending over an odd number $N_p$ of poloidal turns with 1 radial mode $k_x$ is therefore equivalent to a flux-tube extending over 1 poloidal turn with $N_p$ coupled radial modes $k_x + p\Delta k_x$ with $p$ an integer varying from $-(N_p-1)/2$ to $(N_p+1)/2$.\\ 
+In practice, running with a sufficiently high number of poloidal turns (or coupled radial modes) is necessary to get a result independent of the boundary condition imposed at the end of the field line (when the number of poloidal turns increases, $k_\perp$ increases and the perturbations are damped by FLR effects). 
+
 \section{Electromagnetic effects and collisions}
 \subsection{Plasma beta}
 The strength of the electromagnetic effects depends on the ratio of the plasma pressure to the magnetic energy and is specified by the dimensionless ratio:
@@ -239,11 +250,11 @@ Sometimes, collisions of electrons on main ions are artificially enhanced by a g
 
 
 \section{Physics switches} \label{sec:switches}
-All gyrokinetic codes have a full set of switches to adjust the complexity of the physical description. Some of these possibilites are retained for the database entries. 
+All gyrokinetic codes have a full set of switches to adjust the complexity of the physical description. Some of these possibilites concerning electromagnetic effects and collisions are retained for the database entries.\\ 
 Electromagnetic fluctuations:
 \begin{itemize}
-\item Are the fluctuations of the parallel electromagnetic vector potential $A_\parallel$ retained (magnetic flutter)?
-\item Are the fluctuations of the perpendicular electromagnetic vector potential retained (magnetic compression)?
+\item Are the fluctuations of the parallel electromagnetic vector potential $A_\parallel$ retained (magnetic field flutter)?
+\item Are the fluctuations of the perpendicular electromagnetic vector potential retained (magnetic field compression)?
 \end{itemize}
 Collisions:
 \begin{itemize}
@@ -254,76 +265,104 @@ Collisions:
 \item Is energy conservation ensured?
 \item Are FLR retained in the collision treatment?
 \end{itemize}
-Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. Jpwever, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,
+Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. Jpwever, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,\\
+The following switches are also included:
+\begin{itemize}
+\item Are the centrifugal effects included?
+\item Initial value run or eigenvalue solver?
+\end{itemize}
 
 \chapter{Outputs}
 \section{Mode amplitude}
 In linear runs, unstable modes are exponentially growing in time and so are the associated fluxes. 
-The exponentially growing outputs are therefore normalised to a dimensionless mode amplitude defined as:
+The exponentially growing outputs stored in the database are therefore normalised to a dimensionless mode amplitude defined as:
 \begin{equation}
- A_f(k_x,k_y)(t) = \sqrt{\int \left[|\hat{\phi}_N(k_x,k_y,\theta)|^2 + |\hat{A}_{\parallel N}(k_x,k_y,\theta)|^2 \right] \,\textrm{d}\theta}
+ A_f(k_x,k_y)(t) = \sqrt{\int \left[|\hat{\phi}_N(k_x,k_y,\theta)|^2 + |\hat{A}_{\parallel N}(k_x,k_y,\theta)|^2  + |\hat{B}_\parallel N(k_x,k_y,\theta)|^2\right] \,\textrm{d}\theta}
 \end{equation}
 with the Fourrier components of the electrostatic potential and vector potential normalised as follows:
 \begin{equation}
-  \hat{\phi}_N = \frac{q_\tref}{T_\tref} \hat{\phi} \qquad \qquad 
-\textrm{and} \qquad \qquad \hat{A}_{\parallel N}=\frac{1}{B_\tref \rho_\tref} \hat{A}_\parallel
+  \hat{\phi}_N = \frac{1}{\rho_*}\frac{q_\tref}{T_\tref} \hat{\phi} \qquad \qquad 
+  \hat{A}_{\parallel N}=\frac{1}{\rho_*^2}\frac{1}{L_\tref B_\tref} \hat{A}_\parallel \qquad \qquad
+  \hat{B}_{\parallel N}=\frac{1}{\rho_*}\frac{1}{B_\tref} \hat{B}_\parallel
 \end{equation}
-
+where $\rho_*=\rho_\tref/L_\tref$.
+The value of the mode amplitude in a linear run has little meaning by itself and is not stored in the database. 
 
 \section{Mode growth rate and frequency}
 The normalisations of the mode growth rate $\gamma$ and frequency $\omega_r$ are:
 \begin{equation}
  \gamma_N(k_x,k_y) = \gamma(k_x,k_y) \frac{L_\tref}{v_\textrm{thref}} \qquad \qquad \textrm{and} \qquad \qquad \omega_{rN}(k_x,k_y) = \omega_r(k_x,k_y) \frac{L_\tref}{v_\textrm{thref}}
 \end{equation}
-By convention, unstable modes have a positive growth rate and modes propagating in the ion diamagnetic drift direction have a positive frequency (and therefore a negative frequency when they are propagating in the electron diamagnetic drift direction).
+By convention, unstable modes have a positive growth rate and modes propagating in the ion diamagnetic drift direction have a positive frequency (and therefore a negative frequency when they are propagating in the electron diamagnetic drift direction).\\
+
+For initial value runs, the following (post-processing) method is used to determine the tolerance on the run convergence:
+$$\gamma_\textrm{tol} = \sqrt{\frac{1}{\Delta t}\int_{t-\Delta t}^t \gamma^2(t)\,\textrm{dt}}$$
+where $\Delta t \sim 1/\gamma$ and
+$$\gamma(t)=\frac{1}{\delta t}[\ln{A_f(t)}-\ln{A_f(t-\delta t)}]$$
+with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$to compute the time dependent growth rate..
 
 \section{Parallel mode structure}
+\subsection{Parallel grid}
+The variation of the mode amplitude and phase in the parallel direction is given as a function of the poloidal angle $\theta$ defined previously.
 \subsection{Perturbed electrostatic potential}
+$$\phi_{Nf}(\theta) = \frac{\hat{\phi}_N(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
+The phase factor $\alpha$ is chosen so that the imaginary part of $\phi_{Nf}$ is zero at $\theta=0$ which makes comparisons of the mode structure between different runs easier. 
 \subsection{Perturbed parallel vector potential (magnetic field flutter)}
+$$A_{\parallel Nf}(\theta) = \frac{\hat{A}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
 \subsection{Perturbed parallel magnetic field (magnetic field compression)}
-\textit{YC: to do, find an appropriate basis to expand the parallel mode structure}
+$$B_{\parallel Nf}(\theta) = \frac{\hat{B}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
 
-\section{Fluxes}
+\subsection{Moments of the distribution function}
+It may be interesting to add as an optional output the gyro-averaged moments of the distribution function. To be discussed.
+
+
+\section{Gyro-center fluxes}
 \subsection{Definition}
 For each species, the flux-surface averaged contravariant radial component of the particle flux, energy flux and toroidal angular momentum flux are given by:
 \begin{eqnarray}
- \Gamma_s &=& \left<\int f_s \mathbf{v}_\mathbf{E} \cdot \nabla r\,\textrm{d}\mathbf{v}\right> 
-+ \left<\int f_s \mathbf{v}_{\mathbf{B}_\perp} \cdot \nabla r\,\textrm{d}\mathbf{v}\right> \\
-      Q_s &=& \left<\int \frac{1}{2}m_sv^2 f_s \mathbf{v}_\mathbf{E} \cdot \nabla r\,\textrm{d}\mathbf{v}\right> 
-+ \left<\int \frac{1}{2}m_sv^2 f_s \mathbf{v}_{\mathbf{B}_\perp} \cdot \nabla r\,\textrm{d}\mathbf{v}\right> \\
-  \Pi_s   &=& \left<\int m_s R \frac{B_t}{B}v_\parallel f_s \mathbf{v}_\mathbf{E} \cdot \nabla r\,\textrm{d}\mathbf{v}\right> 
-+ \left<\int m_s R \frac{B_t}{B}v_\parallel f_s \mathbf{v}_{\mathbf{B}_\perp} \cdot \nabla r\,\textrm{d}\mathbf{v}\right>
-% + <\int \alpha_i f_s \mathbf{v}_{\nabla B_\parallel} \cdot \nabla r\,\textrm{d}\mathbf{v}>
-% YC: possible to add compressional effects later on, but then the expression must take into account the difference between guiding centers and particles (note to self: see document by G. Szepesi)
+ \Gamma_s &=& \left<\int f_s \left[\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp} + \mathbf{v}_{\nabla B_\parallel}  \right]\cdot \nabla r\,\textrm{d}\mathbf{v}\right> \\
+  \Pi_s   &=& \left<\int m_s R \frac{B_t}{B}v_\parallel f_s  \left[\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp} + \mathbf{v}_{\nabla B_\parallel}  \right] \cdot \nabla r\,\textrm{d}\mathbf{v}\right> \\
+      Q_s &=& \left<\int \frac{1}{2}m_sv^2 f_s \left[\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp} + \mathbf{v}_{\nabla B_\parallel}  \right] \cdot \nabla r\,\textrm{d}\mathbf{v}\right> 
 \end{eqnarray}
-where $f_s$ is the perturbed guiding center distribution function of species $s$ and the two terms on the right hand side correspond to the fluxes induced by the electrostatic and magnetic flutter drifts:
+where $f_s$ is the perturbed guiding center distribution function of species $s$ and the two terms on the right hand side correspond to the fluxes induced by the electrostatic, magnetic flutter and magnetic compression drifts:
 \begin{equation}
- \mathbf{v}_\mathbf{E} = \frac{\mathbf{b}\times \nabla \phi}{B} \qquad \qquad \textrm{and } \qquad \qquad
- \mathbf{v}_{\mathbf{B}_\perp} = -v_\parallel \frac{\mathbf{b}\times \nabla A_{\parallel}}{B} 
-%  \mathbf{v}_{\nabla B_\parallel} = \frac{\mu}{Ze} \frac{\mathbf{b}\times \nabla B_{1\parallel}}{B}
+ \mathbf{v}_\mathbf{E} = \frac{\mathbf{b}\times \nabla \left<\phi\right>_\textrm{gy} }{B} \qquad \qquad \qquad
+ \mathbf{v}_{\mathbf{B}_\perp} = -v_\parallel \frac{\mathbf{b}\times \nabla \left<A_{\parallel}\right>_\textrm{gy}}{B}  \qquad \qquad \qquad
+ \mathbf{v}_{\nabla B_\parallel} = \frac{\mu}{Ze} \frac{\mathbf{b}\times \nabla \left<B_{\parallel}\right>_\textrm{gy}}{B}
 \end{equation}
-with $\phi$ and $A_{1\parallel}$ the gyro-averaged perturbed electrostatic potential and  parallel vector potential, respectively.
-Note that the toroidal angular momentum only includes the toroidal projection of the parallel momentum, but rigourously speaking one should also include the toroidal projection of the perpendicular momentum (\textit{YC: to be added, but it is almost always negligible...}). 
-\subsection{Coordinate free form}
-As the contravariant radial component of the fluxes is coordinate dependent, the particle, energy and toroidal angular momentum transfer rates accross the flux surface $r_0$, are preferred to the fluxes to characterise the level of transport: $T_s^p=\Gamma_s \mathcal{V}'$, $T_s^m=\Pi_s\mathcal{V}'$ and $T_s^e=Q_s\mathcal{V}'$, where $\mathcal{V}'=\partial\mathcal{V}/\partial r$ with  $\mathcal{V}$ the volume enclosed by the flux surface $r=r_0$. 
+with $\left<\phi\right>_\textrm{gy}$, $\left<A_{\parallel}\right>_\textrm{gy}$ and $\left<B_{\parallel}\right>_\textrm{gy}$, the gyro-averaged perturbed electrostatic potential, parallel vector potential and parallel magnetic field, respectively.
+
+Note that the momentum flux in the expression above only includes the toroidal projection of the parallel momentum. The toroidal projection of the perpendicular momentum also contributes to the total momentum flux, see e.g. \cite{Scott:PoP2010}. This contribution is not included here but could be added in the future. 
+
+\subsection{Laboratory frame versus rotating frame}
+To describe inertial effects associated with the background rotation, several gyrokinetic codes (e.g. GKW, GENE, GS2) solve the gyro-kinetic equation in the frame rotating as a rigid body with the angular frequency $\omega_\Phi$. The Laboratory frame fluxes are of course the relevant ones for comparison with the experiments. They can be computed from quantities expressed in the rotating frame as follows:
+\begin{eqnarray}
+\Gamma_s^\textrm{L} &=& \Gamma_s^\textrm{co} \\
+\Pi_s^\textrm{L} &=& \Pi_s^\textrm{co} + \left< \int m_s\omega_\Phi\left(\frac{RB_t}{B}\right)^2 f_s \mathbf{v}_\chi\cdot \nabla r  \,\textrm{d}\mathbf{v}\right>\\
+Q_s^\textrm{L} &=& Q_s^\textrm{co} + \omega_\Phi \Pi_s^\textrm{co}
++ \left< \int \frac{1}{2}m_s(R\omega_\Phi)^2 f_s  \mathbf{v}_\chi\cdot \nabla r \,\textrm{d}\mathbf{v}\right> 
+%Q_s^\textrm{L} &=& Q_s^\textrm{co} + \left< \int m_sv_\parallel\omega_\Phi\frac{RB_t}{B} f_s \mathbf{v}_\chi\cdot \nabla r  \,\textrm{d}\mathbf{v}\right> 
+%+ \left< \int \frac{1}{2}m_s(R\omega_\Phi)^2 f_s  \mathbf{v}_\chi\cdot \nabla r \,\textrm{d}\mathbf{v}\right> 
+\end{eqnarray}
+with $\mathbf{v}_\chi=\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp}+ \mathbf{v}_{\nabla B_\parallel}$ and all the expressions in the right hand sides evaluated in the rotating frame.
+For convenience, both the Laboratory frame and rotating frame fluxes are stored in the database. 
+
 
 \subsection{Normalisation}
-The transfer rates are given for each Fourier mode. They are normalised to the corresponding (linear) mode amplitude and made dimensionless as follows:
+The fluxes are given for each Fourier mode, normalised to the corresponding (linear) mode amplitude and made dimensionless as follows:
 \begin{eqnarray}
- T^p_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{\Gamma_s(k_x,k_y)\mathcal{V}'}{n_\tref v_\textrm{thref} L_\tref^2}\\
- T^m_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{\Pi_s(k_x,k_y)\mathcal{V}'}{n_\tref v_\textrm{thref} L_\tref^2}\\
- T^e_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{Q_s(k_x,k_y)\mathcal{V}'}{n_\tref v_\textrm{thref} L_\tref^2}
+ \Gamma_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{\Gamma_s(k_x,k_y)}{n_\tref \vthref \rho_*^2}\\
+ \Pi_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{\Pi_s(k_x,k_y)\mathcal{V}'}{n_\tref m_\tref L_\tref \vthref^2 \rho_*^2}\\
+ Q_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{Q_s(k_x,k_y)\mathcal{V}'}{n_\tref T_\tref \vthref \rho_*^2}
 \end{eqnarray}
-In addition, the electrostatic and magnetic flutter parts are given separately (i.e. $T_{Ns}=T_{Ns,\phi}+T_{Ns,A_\parallel}$) for each transfer rate. 
+In addition, the electrostaticm magnetic flutter and magnetic compressions are stored separately (e.g. $\Gamma_{Ns}=\Gamma_{Ns,\phi}+\Gamma_{Ns,A_\parallel}+\Gamma_{Ns,B_\parallel}$) for each flux. 
 
 
 
 
 \chapter{Meta-data}
 
-\chapter{Summary tables}
 
-\textit{TO DO: add summary tables for normalising quantities, inputs and outputs with hyperlinks to the detailed definitions for convenience}
 
 \chapter{Test cases}
 
