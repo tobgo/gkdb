@@ -9,7 +9,11 @@
 \usepackage{amssymb}
 \usepackage{bm}
 \usepackage{graphicx}
+\usepackage{tabularx}
 
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{S}{>{\hsize=0.6\hsize}Y}
+\newcolumntype{L}{>{\hsize=1.2\hsize}X}
 
 \begin{document}
 
@@ -17,7 +21,7 @@
 
 \author{Y. Camenen on behalf of the GKDB working group}
 
-\date{Last update: March 20, 2017}
+\date{Last update: March 24, 2017}
 
 \maketitle
 
@@ -117,9 +121,8 @@ For convenience, the following reference quantities are defined:
 
 \chapter{Inputs}
 \section{Species}
-For each species $s$, the background distribution function is supposed to be a local Maxwellian. Poloidal asymmetry in the background induced by centrifugal effects is allowed. Poloidally asymmetric quantities are given in input at $\theta=0$. Poloidal asymmetry induced by anisotropic temperatures is not included yet, but could be introduced if need be. 
-\subsection{Number of ions}
-At this stage, the database only stores runs with one kinetic electron species (adiabatic electrons not allowed) and an arbitrary number of kinetic ions species. $N_\textrm{ion}$. The total number of species is  $N_\textrm{ion}+1$.
+For each species $s$, the background distribution function is supposed to be a local Maxwellian. Poloidal asymmetry in the background induced by centrifugal effects is allowed. Poloidally asymmetric quantities are given in input at $\theta=0$. Poloidal asymmetry induced by anisotropic temperatures is not included yet, but could be introduced if need be.\\ 
+At this stage, the database only stores runs with kinetic electron species (adiabatic electrons not allowed). An arbitrary number of kinetic species is allowed, but quasineutrality has to be ensured.
 
 \subsection{Charge}
 $$Z_{sN}=\frac{q_s}{q_\tref}$$
@@ -148,9 +151,22 @@ Positive for peaked profiles of a flow in the direction of $\nabla \varphi$.\\
 Note that the possibility to have a species dependent toroidal velocity gradient with $\omega_{\varphi,s}\neq \omega_\Phi$ is retained. Strictly speaking, this is inconsistent with the local limit assumption $\rho_*\rightarrow 0$ but can be interesting for the interpretation of the experiments (see the discussion in section II of \cite{Camenen:PoP2016} for more details).
 
 
-%\subsection{Summary table}
-%\begin{tabular}
-%\end{tabular}
+\subsection{Summary of the species parameters}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+charge & - & Integer & 1 \\
+mass & $>0$ & Real & 1 \\
+density & $\geq0$ & Real & 1 \\
+density\_log\_gradient & - & Real & 1 \\
+temperature & $>0$ & Real & 1 \\
+temperature\_log\_gradient & - & Real & 1 \\
+toroidal\_velocity & - & Real & 1 \\
+toroidal\_velocity\_gradient & - & Real & 1 \\
+\hline
+\end{tabularx}\\
+All parameters above are species dependent, except the toroidal velocity that is common to all species. 
 
 \section{Magnetic equilibrium}
 The magnetic equilibrium in the vicinity of the flux surface of interest is specified by the parameters described in this section, given at $r=r_0$.
@@ -195,7 +211,25 @@ To allow regressions in the database the flux surface contours are parametrised 
 \begin{equation}
  a_N(r,\theta) = \sum_{n=0}^{N_{sh}} c_n \cos(n\theta) + s_n \sin(n\theta)
 \end{equation}
-The specification of the local magnetic equilibrium then requires $4N_{sh}+2$ terms, given at $r=r_0$, where $N_{sh}$ is the degree of the expansion: $\{c_n,s_n,\frac{\partial c_n}{\partial r_N},\frac{\partial s_n}{\partial r_N}\}$. To start with, $N_{sh}$ is set to 8. It should allow to capture most of the plasma shapes but in any case $N_{sh}$ can be increased at a later stage if needed.\\
+The specification of the local magnetic equilibrium then requires $4N_{sh}+2$ terms, given at $r=r_0$, where $N_{sh}$ is the degree of the expansion: $\{c_n,s_n,\frac{\partial c_n}{\partial r_N},\frac{\partial s_n}{\partial r_N}\}$. Typically $N_{sh}\leq8$ is sufficient to capture most of the plasma shapes but higher values can be used when needed.
+
+\subsection{Summary of the shape parameters}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+r\_minor & $0\leq r_N \leq 1$ & Real & 1 \\
+ip\_sign & $\pm 1$ & ?? & 1 \\
+b\_field\_tor\_sign & $\pm 1$ & ?? & 1 \\
+q & - & Real & 1 \\
+magnetic\_shear & - & Real & 1 \\
+beta\_gradient & - & Real & 1 \\
+c & - & Real & $N_{sh}+1$ \\
+dc\_dr\_minor & - & Real & $N_{sh}+1$ \\
+s & - & Real & $N_{sh}$ \\
+ds\_dr\_minor & - & Real & $N_{sh}$ \\
+\hline
+\end{tabularx}
 
 \section{Modes}
 As almost every gyrokinetic codes use a different coordinate system, it is convenient to specify the Fourier modes in a coordinate free form.\\
@@ -211,13 +245,13 @@ For a given mode, the perpendicular wave vector (in real space) is given by:
 \end{equation}
 with the code dependent metric elements given by $g^{ij}=\nabla i \cdot \nabla j$. All the metric information is on the right hand side of the equation above, the resulting $k_\perp$ does not depend on the specific coordinate choices made in gyrokinetic codes.
 
-\section{Radial mode number}
+\subsection{Radial mode number}
 The normalised coordinate independent radial mode number is defined as
 \begin{equation}
  k_{r*}\rho_\tref = k_x \sqrt{g^{xx}(\theta=0)} \rho_\tref
 \end{equation}
 
-\section{Binormal mode number}
+\subsection{Binormal mode number}
 The normalised coordinate independent binormal mode number is defined as
 \begin{equation}
  k_{\theta*}\rho_\tref = k_y \sqrt{g^{yy}(\theta=0)} \rho_\tref
@@ -232,31 +266,51 @@ with $\Delta k_x$ depending on the magnetic shear.\\
 A flux-tube extending over an odd number $N_p$ of poloidal turns with 1 radial mode $k_x$ is therefore equivalent to a flux-tube extending over 1 poloidal turn with $N_p$ coupled radial modes $k_x + p\Delta k_x$ with $p$ an integer varying from $-(N_p-1)/2$ to $(N_p+1)/2$.\\ 
 In practice, running with a sufficiently high number of poloidal turns (or coupled radial modes) is necessary to get a result independent of the boundary condition imposed at the end of the field line (when the number of poloidal turns increases, $k_\perp$ increases and the perturbations are damped by FLR effects). 
 
-\section{Electromagnetic effects and collisions}
+\subsection{Summary of the mode parameters}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+radial\_wavevector & - & Real & 1 \\
+binormal\_wavevector & $\geq 0$ & Real & 1 \\
+number\_poloidal\_turns & $>0$ & Integer & 1 \\
+\hline
+\end{tabularx}
+
+\section{Electromagnetic effects}
 \subsection{Plasma beta}
 The strength of the electromagnetic effects depends on the ratio of the plasma pressure to the magnetic energy and is specified by the dimensionless ratio:
 \begin{equation}
 \beta_{eN} = 2\mu_0 \frac{n_\tref T_\tref}{B_\tref^2}
 \end{equation}
 When $\beta_{eN}=0$, the run is electrostatic. 
- 
+
+\subsection{Switches}
+\begin{itemize}
+\item Are the fluctuations of the parallel electromagnetic vector potential $A_\parallel$ retained (magnetic field flutter)?
+\item Are the fluctuations of the perpendicular electromagnetic vector potential retained (magnetic field compression)?
+\end{itemize}
+
+\subsection{Summary of the electromagnetic effects parameters}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+beta & $\geq 0$ & Real & 1 \\
+a\_parallel\_flag & 0 or 1 & Logical & 1 \\
+b\_field\_parallel\_flag & 0 or 1 & Logical & 1 \\
+\hline
+\end{tabularx}
+
+\section{Collisions}
 \subsection{Plasma collisionality}
 The normalised collision frequency
 \begin{equation}
  \nu_{eN} = \frac{q_\tref^2}{16\pi\epsilon_0}\frac{R_\tref n_\tref}{T_\tref^2}
 \end{equation}
 is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$, $n_\tref$ in $[\textrm{m}^{-3}]$ and $T_\tref$ in $[\textrm{eV}]$. It is assumed that each species collisionality is calculated in the code consistently with the species input parameters (i.e. the normalised species temperature and density are used to calculate the collisionality of each species). This behaviour can be altered by specific collisionality switches described in Sec.~\ref{sec:various}.\\
-Sometimes, collisions of electrons on main ions are artificially enhanced by a given factor to mimic the impact of impurity ions. If this was done in the simulation, the enhancement factor is specified with the parameter $Z_\textrm{eff}$.
 
-
-\section{Physics switches} \label{sec:switches}
-All gyrokinetic codes have a full set of switches to adjust the complexity of the physical description. Some of these possibilites concerning electromagnetic effects and collisions are retained for the database entries.\\ 
-Electromagnetic fluctuations:
-\begin{itemize}
-\item Are the fluctuations of the parallel electromagnetic vector potential $A_\parallel$ retained (magnetic field flutter)?
-\item Are the fluctuations of the perpendicular electromagnetic vector potential retained (magnetic field compression)?
-\end{itemize}
-Collisions:
+\subsection{Switches}
 \begin{itemize}
 \item Pitch angle scattering only is retained (as opposed to pitch angle and energy scattering)
 \item Electron-ion collisions only are retained (as opposed all interspecies collisions)
@@ -266,11 +320,29 @@ Collisions:
 \item Are FLR retained in the collision treatment?
 \end{itemize}
 Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. Jpwever, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,\\
-The following switches are also included:
+
+\subsection{Summary of the collision parameters}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+collisionality & $\geq 0$ & Real & 1 \\
+pitch\_only\_flag & 0 or 1 & Logical & 1 \\
+ei\_collisions\_only\_flag & 0 or 1 & Logical & 1 \\
+collisions\_enhancement & $\geq 1$ & Real & 1 \\
+momentum\_conservation\_flag & 0 or 1 & Logical & 1 \\
+energy\_conservation\_flag & 0 or 1 & Logical & 1 \\
+\hline
+\end{tabularx}
+
+
+\section{Other  switches} \label{sec:switches}
 \begin{itemize}
-\item Are the centrifugal effects included?
-\item Initial value run or eigenvalue solver?
+\item Are the centrifugal effects included?  
+\item Initial value run or eigenvalue solver? -> move to the mode section?
 \end{itemize}
+
+
 
 \chapter{Outputs}
 \section{Mode amplitude}
@@ -301,6 +373,19 @@ where $\Delta t \sim 1/\gamma$ and
 $$\gamma(t)=\frac{1}{\delta t}[\ln{A_f(t)}-\ln{A_f(t-\delta t)}]$$
 with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$to compute the time dependent growth rate..
 
+\subsection{Summary of the eigenvalue outputs}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+growth\_rate & - & Real & $N_\textrm{modes}$ \\
+tolerance\_growth\_rate & $0<\gamma_\textrm{tol}\leq 0.1$ & Real & 1 \\
+frequency & - & Real & $N_\textrm{modes}$ \\
+\hline
+\end{tabularx}
+For initial value runs, $N_\textrm{modes}=1$ and only the linear outputs corresponding to the most unstable run are given. When the eigenvalue solver is used $N_\textrm{modes}$ indicates the number of modes for which the linear outputs are given. 
+
+
 \section{Parallel mode structure}
 \subsection{Parallel grid}
 The variation of the mode amplitude and phase in the parallel direction is given as a function of the poloidal angle $\theta$ defined previously.
@@ -314,6 +399,18 @@ $$B_{\parallel Nf}(\theta) = \frac{\hat{B}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_
 
 \subsection{Moments of the distribution function}
 It may be interesting to add as an optional output the gyro-averaged moments of the distribution function. To be discussed.
+
+\subsection{Summary of the parallel outputs}
+\begin{tabularx}{\textwidth}{|L|S|S|S|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+poloidal\_angle & $-N_p\pi$ to $N_p\pi$ & Real & $N_\textrm{pol grid}$\\
+phi\_potential\_perturbed & - & Real & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
+a\_parallel\_perturbed & - & Real & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
+b\_field\_parallel\_perturbed & - & Real & $N_\textrm{pol grid}\times N_\textrm{modes}$\\ 
+\hline
+\end{tabularx}
 
 
 \section{Gyro-center fluxes}
@@ -357,6 +454,28 @@ The fluxes are given for each Fourier mode, normalised to the corresponding (lin
 \end{eqnarray}
 In addition, the electrostaticm magnetic flutter and magnetic compressions are stored separately (e.g. $\Gamma_{Ns}=\Gamma_{Ns,\phi}+\Gamma_{Ns,A_\parallel}+\Gamma_{Ns,B_\parallel}$) for each flux. 
 
+\subsection{Summary of the fluxes outputs}
+\begin{tabularx}{\textwidth}{|L|S|S|S|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+particle\_phi\_potential\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+particle\_a\_parallel\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+particle\_b\_field\_parallel\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+momentum\_phi\_potential\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+momentum\_a\_parallel\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+momentum\_b\_field\_parallel\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+heat\_phi\_potential\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+heat\_a\_parallel\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+heat\_b\_field\_parallel\_lab\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+momentum\_phi\_potential\_co\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+momentum\_a\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+momentum\_b\_field\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+heat\_phi\_potential\_co\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+heat\_a\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+heat\_b\_field\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\textrm{modes}$\\ 
+\hline
+\end{tabularx}
 
 
 
