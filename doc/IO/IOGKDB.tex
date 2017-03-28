@@ -21,7 +21,7 @@
 
 \author{Y. Camenen on behalf of the GKDB working group}
 
-\date{Last update: March 24, 2017}
+\date{Last update: March 28, 2017}
 
 \maketitle
 
@@ -322,7 +322,7 @@ is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$,
 Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. Jpwever, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,\\
 
 \subsection{Summary of the collision parameters}
-\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\begin{tabularx}{\textwidth}{|L|S|S|S|}
 \hline
 Name & Value/Range & Type & Dimension \\
 \hline
@@ -406,9 +406,9 @@ It may be interesting to add as an optional output the gyro-averaged moments of 
 Name & Value/Range & Type & Dimension \\
 \hline
 poloidal\_angle & $-N_p\pi$ to $N_p\pi$ & Real & $N_\textrm{pol grid}$\\
-phi\_potential\_perturbed & - & Real & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
-a\_parallel\_perturbed & - & Real & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
-b\_field\_parallel\_perturbed & - & Real & $N_\textrm{pol grid}\times N_\textrm{modes}$\\ 
+phi\_potential\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
+a\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
+b\_field\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\ 
 \hline
 \end{tabularx}
 
@@ -481,7 +481,9 @@ heat\_b\_field\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\te
 
 \chapter{Meta-data}
 
+\chapter{Entry submission procedure}
 
+\section{Checks}
 
 \chapter{Test cases}
 
