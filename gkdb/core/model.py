@@ -161,4 +161,3 @@ def purge_tables():
             except ProgrammingError:
                 db.rollback()
     db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes])
-purge_tables()
