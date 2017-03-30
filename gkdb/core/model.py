@@ -73,6 +73,14 @@ class Eigenvalue(BaseModel):
     frequency                    = FloatField()
     growth_rate_tolerance        = FloatField()
 
+    # Derived quantities
+    phi_amplitude = FloatField()
+    phi_parity = FloatField()
+    a_amplitude = FloatField()
+    a_parity = FloatField()
+    b_amplitude = FloatField()
+    b_parity = FloatField()
+
 class Eigenvector(BaseModel):
     eigenvalue                   = ForeignKeyField(Eigenvalue, related_name='eigenvector')
     r_phi_potential_perturbed    = ArrayField(FloatField)
@@ -82,14 +90,6 @@ class Eigenvector(BaseModel):
     r_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
     i_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
     poloidal_angle               = ArrayField(FloatField)
-
-    # Derived quantities
-    phi_amplitude = FloatField()
-    phi_parity = FloatField()
-    a_amplitude = FloatField()
-    a_parity = FloatField()
-    b_amplitude = FloatField()
-    b_parity = FloatField()
 
 class Species(BaseModel):
     point = ForeignKeyField(Point, related_name='species')
