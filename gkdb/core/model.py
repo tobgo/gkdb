@@ -28,14 +28,19 @@ class Code(BaseModel):
     name = TextField()
     version = TextField()
     parameters = BinaryJSONField()
-    a_parallel_flag = BooleanField()
-    b_field_parallel_flag = BooleanField()
-    collisions_enhancement = FloatField()
-    pitch_only_flag = BooleanField()
-    ei_collisions_only_flag = BooleanField()
-    momentum_conservation_flag = BooleanField()
-    energy_conservation_flag = BooleanField()
-    eigenvalue_flag = BooleanField()
+
+    include_centrifugal_effects = BooleanField()
+    include_a_parallel = BooleanField()
+    include_b_field_parallel = BooleanField()
+
+    collision_pitch_only = BooleanField()
+    collision_ei_only = BooleanField()
+    collision_momentum_conservation = BooleanField()
+    collision_energy_conservation = BooleanField()
+    collision_finite_larmor_radius = BooleanField()
+    collision_enhancement_factor = FloatField()
+
+    initial_value_run = BooleanField()
 
 class Flux_Surface(BaseModel):
     point = ForeignKeyField(Point, related_name='flux_surface')
@@ -50,9 +55,7 @@ class Flux_Surface(BaseModel):
     beta_gradient = FloatField()
     ip_sign = SmallIntegerField()
     b_field_tor_sign = SmallIntegerField()
-
-class Shape(BaseModel):
-    flux_surface = ForeignKeyField(Flux_Surface, related_name='shape')
+    # Original shape
     c = ArrayField(FloatField)
     s = ArrayField(FloatField)
     dc_dr_minor = ArrayField(FloatField)
@@ -62,16 +65,16 @@ class Wavevector(BaseModel):
     point = ForeignKeyField(Point, related_name='wavevector')
     radial_wavevector = FloatField()
     binormal_wavevector = FloatField()
-    number_poloidal_turns = IntegerField()
+    poloidal_turns = IntegerField()
 
-class Eigenmode(BaseModel):
-    wavevector                   = ForeignKeyField(Wavevector, related_name='eigenmode')
+class Eigenvalue(BaseModel):
+    wavevector                   = ForeignKeyField(Wavevector, related_name='eigenvalue')
     growth_rate                  = FloatField()
     frequency                    = FloatField()
-    tolerance_growth_rate        = FloatField()
+    growth_rate_tolerance        = FloatField()
 
 class Eigenvector(BaseModel):
-    eigenmode                    = ForeignKeyField(Eigenmode, related_name='eigenvector')
+    eigenvalue                   = ForeignKeyField(Eigenvalue, related_name='eigenvector')
     r_phi_potential_perturbed    = ArrayField(FloatField)
     i_phi_potential_perturbed    = ArrayField(FloatField)
     r_a_parallel_perturbed       = ArrayField(FloatField, null=True)
@@ -79,6 +82,14 @@ class Eigenvector(BaseModel):
     r_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
     i_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
     poloidal_angle               = ArrayField(FloatField)
+
+    # Derived quantities
+    phi_amplitude = FloatField()
+    phi_parity = FloatField()
+    a_amplitude = FloatField()
+    a_parity = FloatField()
+    b_amplitude = FloatField()
+    b_parity = FloatField()
 
 class Species(BaseModel):
     point = ForeignKeyField(Point, related_name='species')
@@ -91,21 +102,40 @@ class Species(BaseModel):
     temperature_log_gradient = FloatField()
     toroidal_velocity_gradient = FloatField()
 
+class Particle_Fluxes(BaseModel):
+    species = ForeignKeyField(Species, related_name='particle_fluxes')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='particle_fluxes')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
 
-class Fluxes(BaseModel):
-    species = ForeignKeyField(Species, related_name='fluxes')
-    eigenmode = ForeignKeyField(Eigenmode, related_name='fluxes')
-    particle_phi_potential = FloatField()
-    particle_a_parallel = FloatField(null=True)
-    particle_b_field_parallel = FloatField(null=True)
-    heat_phi_potential = FloatField()
-    heat_a_parallel = FloatField(null=True)
-    heat_b_field_parallel = FloatField(null=True)
-    kinetic_momentum_phi_potential = FloatField()
-    kinetic_momentum_a_parallel = FloatField(null=True)
-    kinetic_momentum_b_field_parallel = FloatField(null=True)
+class Heat_Fluxes_Lab(BaseModel):
+    species = ForeignKeyField(Species, related_name='heat_fluxes_lab')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='heat_fluxes_lab')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
 
+class Momentum_Fluxes_Lab(BaseModel):
+    species = ForeignKeyField(Species, related_name='momentum_fluxes_lab')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='momentum_fluxes_lab')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
 
+class Heat_Fluxes_Rotating(BaseModel):
+    species = ForeignKeyField(Species, related_name='heat_fluxes_rotating')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='heat_fluxes_rotating')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
+
+class Momentum_Fluxes_Rotating(BaseModel):
+    species = ForeignKeyField(Species, related_name='momentum_fluxes')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='momentum_fluxes')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
 
 def purge_tables():
     clsmembers = inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__)
@@ -115,5 +145,5 @@ def purge_tables():
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
-    db.create_tables([Point, Code, Flux_Surface, Shape, Wavevector, Eigenmode, Eigenvector, Species, Fluxes])
+    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes])
 purge_tables()
