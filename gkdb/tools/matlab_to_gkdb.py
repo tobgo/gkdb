@@ -78,10 +78,10 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                             energy_conservation_flag  =collisions[3])
     collisions.save()
 
-    mode = inputs[4][0][0]
-    mode = flatten_floatstruct(mode)
-    mastermode = MasterMode(point=point, radial_wavevector=mode[0], binormal_wavevector=mode[1])
-    mastermode.save()
+    inp_mode = inputs[4][0][0]
+    inp_mode = flatten_floatstruct(inp_mode)
+    mode = Mode(point=point, radial_wavevector=inp_mode[0], binormal_wavevector=inp_mode[1])
+    mode.save()
     outputs = matdict[5][0][0]
     eigenvalues = flatten_floatstruct(outputs[0][0][0])
     eigenfunc = flatten_floatstruct(eigenfunc_line[2:])
@@ -92,14 +92,14 @@ def matdict_to_SQL(matdict, eigenfunc_line):
 
 
     for val in np.hstack([np.array(eigenvalues).reshape(3,2), np.array(eigenfunc).reshape(3,6)]):
-        mode = Mode(mastermode=mastermode, growth_rate=val[0], frequency=val[1], poloidal_angle=poloidal_angle,
+        eigenmode = Eigenmode(mode=mode, growth_rate=val[0], frequency=val[1], poloidal_angle=poloidal_angle,
                     r_phi_potential_perturbed   = val[2], 
                     i_phi_potential_perturbed   = val[3],
                     r_a_parallel_perturbed      = val[4],
                     i_a_parallel_perturbed      = val[5],
                     r_b_field_parallel_perturbed= val[6],
                     i_b_field_parallel_perturbed= val[7])
-        mode.save()
+        eigenmode.save()
     eigenvalues = flatten_floatstruct(outputs[0][0][0])
 
     npflux = flatten_floatstruct(outputs[2][0][0])
@@ -112,7 +112,10 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                           temperature_log_gradient         =val[5] ,
                           toroidal_velocity                =val[6] ,
                           toroidal_velocity_gradient       =val[7] ,
-                          particle_phi_potential           =val[8] ,
+                          point=point)
+        species.save()
+
+        fluxes = Fluxes(  particle_phi_potential           =val[8] ,
                           particle_a_parallel              =val[9] ,
                           particle_b_field_parallel        =val[10],
                           heat_phi_potential               =val[11],
@@ -124,16 +127,16 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                           field_momentum_phi_potential     =val[17],
                           field_momentum_a_parallel        =val[18],
                           field_momentum_b_field_parallel  =val[19],
-                          point=point)
-        species.save()
+                          species=species)
+        fluxes.save()
 
     code = matdict[6][0][0]
-    if np.all(code[3] == -999999999):
-        output_flag = None
-    elif np.all(code[3] == 1):
-        output_flag = True
-    else:
-        raise NotImplementedError
+    #if np.all(code[3] == -999999999):
+    #    output_flag = None
+    #elif np.all(code[3] == 1):
+    #    output_flag = True
+    #else:
+    #    raise NotImplementedError
 
     try:
         name = code[0][0]
@@ -147,7 +150,7 @@ def matdict_to_SQL(matdict, eigenfunc_line):
         parameters = code[2][0]
     except IndexError:
         parameters = None
-    code = Code(point=point, name=name, version=version, parameters=parameters, output_flag=output_flag)
+    code = Code(point=point, name=name, version=version, parameters=parameters)
     code.save()
 
 #purge_tables()

@@ -1,9 +1,9 @@
 from peewee import *
-from peewee import DoubleField, FloatField, ProgrammingError
+from peewee import FloatField, FloatField, ProgrammingError
 import numpy as np
 import inspect
 import sys
-from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField
+from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField
 from IPython import embed
 import scipy as sc
 from scipy import io
@@ -16,91 +16,141 @@ class BaseModel(Model):
         schema = 'develop'
 
 class Point(BaseModel):
-    creator = TextField(null=True)
-    date = DateTimeField(null=True)
-    reference_case_flag = BooleanField(null=True)
+    creator = TextField()
+    date = DateTimeField()
     comment = TextField()
+    beta = FloatField()
+    collisionality = FloatField()
 
 class Code(BaseModel):
     point = ForeignKeyField(Point, related_name='code')
-    name = TextField(null=True)
-    version = TextField(null=True)
-    parameters = TextField(null=True)
-    output_flag = BooleanField(null=True)
+    name = TextField()
+    version = TextField()
+    parameters = BinaryJSONField()
 
-class Equilibrium(BaseModel):
-    point = ForeignKeyField(Point, related_name='equilibrium')
-    r_minor = DoubleField(null=True)
-    q = DoubleField(null=True)
-    magnetic_shear = DoubleField(null=True)
-    beta_gradient = DoubleField(null=True)
-    ip_sign = FloatField(null=True)
-    b_field_tor_sign = FloatField(null=True)
+    include_centrifugal_effects = BooleanField()
+    include_a_parallel = BooleanField()
+    include_b_field_parallel = BooleanField()
 
-class Shape(BaseModel):
-    equilibrium = ForeignKeyField(Equilibrium, related_name='shape')
-    c0 = DoubleField(null=True)
-    dc0_dr_minor = DoubleField(null=True)
-    c = ArrayField(DoubleField, null=True)
-    s = ArrayField(DoubleField, null=True)
-    dc_dr_minor = ArrayField(DoubleField, null=True)
-    ds_dr_minor = ArrayField(DoubleField, null=True)
+    collision_pitch_only = BooleanField()
+    collision_ei_only = BooleanField()
+    collision_momentum_conservation = BooleanField()
+    collision_energy_conservation = BooleanField()
+    collision_finite_larmor_radius = BooleanField()
+    collision_enhancement_factor = FloatField()
 
-class EmEffects(BaseModel):
-    point = ForeignKeyField(Point, related_name='em_effects')
-    beta = DoubleField(null=True)
-    a_parallel_flag = BooleanField(null=True)
-    a_perpendicular_flag = BooleanField(null=True)
+    initial_value_run = BooleanField()
+    class Meta:
+        primary_key = CompositeKey('point')
 
-class Collisions(BaseModel):
-    point = ForeignKeyField(Point, related_name='collisions')
-    collisionality = DoubleField(null=True)
-    collisions_enhancement = DoubleField(null=True)
-    pitch_only_flag = BooleanField(null=True)
-    ei_collisions_only_flag = BooleanField(null=True)
-    momentum_conservation_flag = BooleanField(null=True)
-    energy_conservation_flag = BooleanField(null=True)
+class Flux_Surface(BaseModel):
+    point = ForeignKeyField(Point, related_name='flux_surface')
+    r_minor = FloatField()
+    # Derived from Shape
+    elongation = FloatField()
+    triangularity = FloatField()
+    squareness = FloatField()
+    # Non-derived
+    q = FloatField()
+    magnetic_shear = FloatField()
+    beta_gradient = FloatField()
+    ip_sign = SmallIntegerField()
+    b_field_tor_sign = SmallIntegerField()
+    # Original shape
+    c = ArrayField(FloatField)
+    s = ArrayField(FloatField)
+    dc_dr_minor = ArrayField(FloatField)
+    ds_dr_minor = ArrayField(FloatField)
+    class Meta:
+        primary_key = CompositeKey('point')
 
-class MasterMode(BaseModel):
-    point = ForeignKeyField(Point, related_name='master_mode')
-    radial_wavevector = DoubleField(null=True)
-    binormal_wavevector = DoubleField(null=True)
+class Wavevector(BaseModel):
+    point = ForeignKeyField(Point, related_name='wavevector')
+    radial_wavevector = FloatField()
+    binormal_wavevector = FloatField()
+    poloidal_turns = IntegerField()
 
-class Mode(BaseModel):
-    mastermode                   = ForeignKeyField(MasterMode, related_name='modes')
-    growth_rate                  = DoubleField(null=True)
-    frequency                    = DoubleField(null=True)
-    r_phi_potential_perturbed    = DoubleField(null=True) 
-    i_phi_potential_perturbed    = DoubleField(null=True)
-    r_a_parallel_perturbed       = DoubleField(null=True)
-    i_a_parallel_perturbed       = DoubleField(null=True)
-    r_b_field_parallel_perturbed = DoubleField(null=True)
-    i_b_field_parallel_perturbed = DoubleField(null=True)
+class Eigenvalue(BaseModel):
+    wavevector                   = ForeignKeyField(Wavevector, related_name='eigenvalue')
+    growth_rate                  = FloatField()
+    frequency                    = FloatField()
+    growth_rate_tolerance        = FloatField()
+
+    # Derived quantities
+    phi_amplitude = FloatField()
+    phi_parity = FloatField()
+    a_amplitude = FloatField()
+    a_parity = FloatField()
+    b_amplitude = FloatField()
+    b_parity = FloatField()
+
+class Eigenvector(BaseModel):
+    eigenvalue                   = ForeignKeyField(Eigenvalue, related_name='eigenvector')
+    r_phi_potential_perturbed    = ArrayField(FloatField)
+    i_phi_potential_perturbed    = ArrayField(FloatField)
+    r_a_parallel_perturbed       = ArrayField(FloatField, null=True)
+    i_a_parallel_perturbed       = ArrayField(FloatField, null=True)
+    r_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
+    i_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
+    poloidal_angle               = ArrayField(FloatField)
+    class Meta:
+        primary_key = CompositeKey('eigenvalue')
 
 class Species(BaseModel):
     point = ForeignKeyField(Point, related_name='species')
-    # Input
-    charge = DoubleField(null=True)
-    mass = DoubleField(null=True)
-    density = DoubleField(null=True)
-    density_log_gradient = DoubleField(null=True)
-    temperature = DoubleField(null=True)
-    temperature_log_gradient = DoubleField(null=True)
-    toroidal_velocity = DoubleField(null=True)
-    toroidal_velocity_gradient = DoubleField(null=True)
-    # Output
-    particle_phi_potential = DoubleField(null=True)
-    particle_a_parallel = DoubleField(null=True)
-    particle_b_field_parallel = DoubleField(null=True)
-    heat_phi_potential = DoubleField(null=True)
-    heat_a_parallel = DoubleField(null=True)
-    heat_b_field_parallel = DoubleField(null=True)
-    kinetic_momentum_phi_potential = DoubleField(null=True)
-    kinetic_momentum_a_parallel = DoubleField(null=True)
-    kinetic_momentum_b_field_parallel = DoubleField(null=True)
-    field_momentum_phi_potential = DoubleField(null=True)
-    field_momentum_a_parallel = DoubleField(null=True)
-    field_momentum_b_field_parallel = DoubleField(null=True)
+    charge = FloatField()
+    mass = FloatField()
+    density = FloatField()
+    temperature = FloatField()
+    toroidal_velocity = FloatField()
+    density_log_gradient = FloatField()
+    temperature_log_gradient = FloatField()
+    toroidal_velocity_gradient = FloatField()
+
+class Particle_Fluxes(BaseModel):
+    species = ForeignKeyField(Species, related_name='particle_fluxes')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='particle_fluxes')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
+
+class Heat_Fluxes_Lab(BaseModel):
+    species = ForeignKeyField(Species, related_name='heat_fluxes_lab')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='heat_fluxes_lab')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
+
+class Momentum_Fluxes_Lab(BaseModel):
+    species = ForeignKeyField(Species, related_name='momentum_fluxes_lab')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='momentum_fluxes_lab')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
+
+class Heat_Fluxes_Rotating(BaseModel):
+    species = ForeignKeyField(Species, related_name='heat_fluxes_rotating')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='heat_fluxes_rotating')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
+
+class Momentum_Fluxes_Rotating(BaseModel):
+    species = ForeignKeyField(Species, related_name='momentum_fluxes')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='momentum_fluxes')
+    phi_potential = FloatField()
+    a_parallel = FloatField(null=True)
+    b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
 
 def purge_tables():
     clsmembers = inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__)
@@ -110,4 +160,4 @@ def purge_tables():
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
-    db.create_tables([Point, Code, Equilibrium, Shape, EmEffects, Collisions, MasterMode, Mode, Species])
+    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes])
