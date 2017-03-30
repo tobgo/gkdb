@@ -41,6 +41,8 @@ class Code(BaseModel):
     collision_enhancement_factor = FloatField()
 
     initial_value_run = BooleanField()
+    class Meta:
+        primary_key = CompositeKey('point')
 
 class Flux_Surface(BaseModel):
     point = ForeignKeyField(Point, related_name='flux_surface')
@@ -60,6 +62,8 @@ class Flux_Surface(BaseModel):
     s = ArrayField(FloatField)
     dc_dr_minor = ArrayField(FloatField)
     ds_dr_minor = ArrayField(FloatField)
+    class Meta:
+        primary_key = CompositeKey('point')
 
 class Wavevector(BaseModel):
     point = ForeignKeyField(Point, related_name='wavevector')
@@ -90,6 +94,8 @@ class Eigenvector(BaseModel):
     r_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
     i_b_field_parallel_perturbed = ArrayField(FloatField, null=True)
     poloidal_angle               = ArrayField(FloatField)
+    class Meta:
+        primary_key = CompositeKey('eigenvalue')
 
 class Species(BaseModel):
     point = ForeignKeyField(Point, related_name='species')
@@ -108,6 +114,8 @@ class Particle_Fluxes(BaseModel):
     phi_potential = FloatField()
     a_parallel = FloatField(null=True)
     b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
 
 class Heat_Fluxes_Lab(BaseModel):
     species = ForeignKeyField(Species, related_name='heat_fluxes_lab')
@@ -115,6 +123,8 @@ class Heat_Fluxes_Lab(BaseModel):
     phi_potential = FloatField()
     a_parallel = FloatField(null=True)
     b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
 
 class Momentum_Fluxes_Lab(BaseModel):
     species = ForeignKeyField(Species, related_name='momentum_fluxes_lab')
@@ -122,6 +132,8 @@ class Momentum_Fluxes_Lab(BaseModel):
     phi_potential = FloatField()
     a_parallel = FloatField(null=True)
     b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
 
 class Heat_Fluxes_Rotating(BaseModel):
     species = ForeignKeyField(Species, related_name='heat_fluxes_rotating')
@@ -129,6 +141,8 @@ class Heat_Fluxes_Rotating(BaseModel):
     phi_potential = FloatField()
     a_parallel = FloatField(null=True)
     b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
 
 class Momentum_Fluxes_Rotating(BaseModel):
     species = ForeignKeyField(Species, related_name='momentum_fluxes')
@@ -136,6 +150,8 @@ class Momentum_Fluxes_Rotating(BaseModel):
     phi_potential = FloatField()
     a_parallel = FloatField(null=True)
     b_field_parallel = FloatField(null=True)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
 
 def purge_tables():
     clsmembers = inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__)
