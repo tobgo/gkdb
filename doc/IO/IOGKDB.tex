@@ -17,11 +17,11 @@
 
 \begin{document}
 
-\title{Inputs and Outputs definition for the linear gyrokinetic database GKDB}
+\title{Documentation of the linear gyrokinetic database GKDB}
 
 \author{Y. Camenen on behalf of the GKDB working group}
 
-\date{Last update: March 28, 2017}
+\date{Last update: March 30, 2017}
 
 \maketitle
 
@@ -29,9 +29,7 @@
 \chapter{Preamble}
 
 This document summarises the names, conventions and normalisations adopted for the inputs and outputs of the linear gyrokinetic database (GKDB) storing results from $\delta$f, flux-tube gyrokinetic simulations.\\ 
-
 The normalised inputs and outputs are independent of $\rho^*$ consistently with the local approximation and a spectral representation is assumed in the perpendicular plane (i.e. homogeneous turbulence).\\
-
 S.I. units are used everywhere with the exception of temperatures given in eV. This means that $kT$ is noted $T$ as is customary in plasma physics (and possibly confusing).
 
 
@@ -219,14 +217,14 @@ The specification of the local magnetic equilibrium then requires $4N_{sh}+2$ te
 Name & Value/Range & Type & Dimension \\
 \hline
 r\_minor & $0\leq r_N \leq 1$ & Real & 1 \\
-ip\_sign & $\pm 1$ & ?? & 1 \\
-b\_field\_tor\_sign & $\pm 1$ & ?? & 1 \\
+ip\_sign & $\pm 1$ & Integer & 1 \\
+b\_field\_tor\_sign & $\pm 1$ & Integer & 1 \\
 q & - & Real & 1 \\
 magnetic\_shear & - & Real & 1 \\
 beta\_gradient & - & Real & 1 \\
-c & - & Real & $N_{sh}+1$ \\
+c & $\geq 0$ & Real & $N_{sh}+1$ \\
 dc\_dr\_minor & - & Real & $N_{sh}+1$ \\
-s & - & Real & $N_{sh}$ \\
+s & $\geq 0$ & Real & $N_{sh}$ \\
 ds\_dr\_minor & - & Real & $N_{sh}$ \\
 \hline
 \end{tabularx}
@@ -264,7 +262,7 @@ In the spectral representation of a flux-tube domain, the periodicity of the tor
 $$\hat{f}(k_x,k_y,\theta-\pi)=\hat{f}(k_x+\Delta k_x,k_y,\theta+\pi)$$
 with $\Delta k_x$ depending on the magnetic shear.\\
 A flux-tube extending over an odd number $N_p$ of poloidal turns with 1 radial mode $k_x$ is therefore equivalent to a flux-tube extending over 1 poloidal turn with $N_p$ coupled radial modes $k_x + p\Delta k_x$ with $p$ an integer varying from $-(N_p-1)/2$ to $(N_p+1)/2$.\\ 
-In practice, running with a sufficiently high number of poloidal turns (or coupled radial modes) is necessary to get a result independent of the boundary condition imposed at the end of the field line (when the number of poloidal turns increases, $k_\perp$ increases and the perturbations are damped by FLR effects). 
+In practice, running with a sufficiently high number of poloidal turns (or coupled radial modes) is necessary to get a result independent of the boundary condition imposed at the end of the field line (when the number of poloidal turns increases, $k_\perp$ increases and the perturbations are damped by finite Larmor radius effects). 
 
 \subsection{Summary of the mode parameters}
 \begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
@@ -273,7 +271,7 @@ Name & Value/Range & Type & Dimension \\
 \hline
 radial\_wavevector & - & Real & 1 \\
 binormal\_wavevector & $\geq 0$ & Real & 1 \\
-number\_poloidal\_turns & $>0$ & Integer & 1 \\
+poloidal\_turns & $>0$ & Integer & 1 \\
 \hline
 \end{tabularx}
 
@@ -297,8 +295,8 @@ When $\beta_{eN}=0$, the run is electrostatic.
 Name & Value/Range & Type & Dimension \\
 \hline
 beta & $\geq 0$ & Real & 1 \\
-a\_parallel\_flag & 0 or 1 & Logical & 1 \\
-b\_field\_parallel\_flag & 0 or 1 & Logical & 1 \\
+include\_a\_parallel & 0 or 1 & Logical & 1 \\
+include\_b\_field\_parallel & 0 or 1 & Logical & 1 \\
 \hline
 \end{tabularx}
 
@@ -308,16 +306,16 @@ The normalised collision frequency
 \begin{equation}
  \nu_{eN} = \frac{q_\tref^2}{16\pi\epsilon_0}\frac{R_\tref n_\tref}{T_\tref^2}
 \end{equation}
-is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$, $n_\tref$ in $[\textrm{m}^{-3}]$ and $T_\tref$ in $[\textrm{eV}]$. It is assumed that each species collisionality is calculated in the code consistently with the species input parameters (i.e. the normalised species temperature and density are used to calculate the collisionality of each species). This behaviour can be altered by specific collisionality switches described in Sec.~\ref{sec:various}.\\
+is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$, $n_\tref$ in $[\textrm{m}^{-3}]$ and $T_\tref$ in $[\textrm{eV}]$. It is assumed that each species collisionality is calculated in the code consistently with the species input parameters (i.e. the normalised species temperature and density are used to calculate the collisionality of each species). This behaviour can be altered by specific collisionality switches described in Sec.~\ref{sec:colswitches}.\\
 
-\subsection{Switches}
+\subsection{Collisionality related switches} \label{sec:colswitches}
 \begin{itemize}
 \item Pitch angle scattering only is retained (as opposed to pitch angle and energy scattering)
-\item Electron-ion collisions only are retained (as opposed all interspecies collisions)
-\item Enhancement factor for electron to (main) ion collisions. This is typically used to mimic the impact of impuritites on the electron-ions collisions.
+\item Electron-ion collisions only are retained (as opposed to all interspecies collisions)
+\item Enhancement factor for electron to (main) ion collisions. This is typically used to mimic the impact of impuritites on the electron-ions collisions. The enhancement factor multiplies the electron to main ion collisionality.
 \item Is momentum conservation ensured?
 \item Is energy conservation ensured?
-\item Are FLR retained in the collision treatment?
+\item Are finite Larmor radius effects retained in the collision treatment?
 \end{itemize}
 Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. Jpwever, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,\\
 
@@ -327,21 +325,61 @@ Note that the implementation of collisions is highly code dependent and the list
 Name & Value/Range & Type & Dimension \\
 \hline
 collisionality & $\geq 0$ & Real & 1 \\
-pitch\_only\_flag & 0 or 1 & Logical & 1 \\
-ei\_collisions\_only\_flag & 0 or 1 & Logical & 1 \\
-collisions\_enhancement & $\geq 1$ & Real & 1 \\
-momentum\_conservation\_flag & 0 or 1 & Logical & 1 \\
-energy\_conservation\_flag & 0 or 1 & Logical & 1 \\
+collision\_enhancement\_factor & $\geq 1$ & Real & 1 \\
+collision\_pitch\_only & 0 or 1 & Logical & 1 \\
+collision\_ei\_only & 0 or 1 & Logical & 1 \\
+collision\_momentum\_conservation\_flag & 0 or 1 & Logical & 1 \\
+collision\_energy\_conservation\_flag & 0 or 1 & Logical & 1 \\
+collision\_finite\_larmor\_radius & 0 or 1 & Logical & 1 \\
 \hline
 \end{tabularx}
 
 
-\section{Other  switches} \label{sec:switches}
+\section{Various switches} \label{sec:rotswitches}
 \begin{itemize}
 \item Are the centrifugal effects included?  
-\item Initial value run or eigenvalue solver? -> move to the mode section?
+\item Was it an initial value or eigenvalue run?
 \end{itemize}
 
+\subsection{Summary of the rotation switches}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+include\_centrifugal\_effects &  0 or 1 & Logical & 1 \\
+initial\_value\_run &  0 or 1 & Logical & 1 \\
+\hline
+\end{tabularx}
+
+\section{Meta-data}
+
+\subsection{Code input file}
+The code input files are automatically parsed and all the code specific inputs stored in a large key/value table. They can be retrieved if/when needed.
+
+\subsection{Meta-data}
+For each point in the database, the following information is requested 
+\begin{itemize}
+ \item The name of the code 
+ \item The version of the code
+ \item The name of the person submiting the entry to the database
+\end{itemize}
+
+\subsection{Comments and tags}
+Informative comments can also be added. For instance to indicate whether this entry is based on an experimental case or if it was used in a publication.\\
+Different entries can be grouped together by giving them a common tag. This can be interesting when submitting entries from a parameter scan.
+ 
+\subsection{Summary of the meta-data}
+\begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+name &  - & String & 1 \\
+version &  - & String & 1 \\
+creator &  - & String & 1 \\
+comment &  - & String & 1 \\
+tag  &  - & String & $N_\textrm{tags}$ \\
+\hline
+\end{tabularx}
 
 
 \chapter{Outputs}
@@ -349,7 +387,7 @@ energy\_conservation\_flag & 0 or 1 & Logical & 1 \\
 In linear runs, unstable modes are exponentially growing in time and so are the associated fluxes. 
 The exponentially growing outputs stored in the database are therefore normalised to a dimensionless mode amplitude defined as:
 \begin{equation}
- A_f(k_x,k_y)(t) = \sqrt{\int \left[|\hat{\phi}_N(k_x,k_y,\theta)|^2 + |\hat{A}_{\parallel N}(k_x,k_y,\theta)|^2  + |\hat{B}_\parallel N(k_x,k_y,\theta)|^2\right] \,\textrm{d}\theta}
+ A_f(k_x,k_y)(t) = \sqrt{\int \left[|\hat{\phi}_N(k_x,k_y,\theta)|^2 + |\hat{A}_{\parallel N}(k_x,k_y,\theta)|^2  + |\hat{B}_{\parallel N}(k_x,k_y,\theta)|^2\right] \,\textrm{d}\theta}
 \end{equation}
 with the Fourrier components of the electrostatic potential and vector potential normalised as follows:
 \begin{equation}
@@ -369,7 +407,7 @@ By convention, unstable modes have a positive growth rate and modes propagating 
 
 For initial value runs, the following (post-processing) method is used to determine the tolerance on the run convergence:
 $$\gamma_\textrm{tol} = \sqrt{\frac{1}{\Delta t}\int_{t-\Delta t}^t \gamma^2(t)\,\textrm{dt}}$$
-where $\Delta t \sim 1/\gamma$ and
+where $\Delta t \sim 1/\gamma$ (here the final $\gamma$ value can be used) and
 $$\gamma(t)=\frac{1}{\delta t}[\ln{A_f(t)}-\ln{A_f(t-\delta t)}]$$
 with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$to compute the time dependent growth rate..
 
@@ -379,11 +417,11 @@ with $\delta t$ depending on the code setup but in any case several times smalle
 Name & Value/Range & Type & Dimension \\
 \hline
 growth\_rate & - & Real & $N_\textrm{modes}$ \\
-tolerance\_growth\_rate & $0<\gamma_\textrm{tol}\leq 0.1$ & Real & 1 \\
+growth\_rate\_tolerance & $0<\gamma_\textrm{tol}\leq 0.1$ & Real & 1 \\
 frequency & - & Real & $N_\textrm{modes}$ \\
 \hline
 \end{tabularx}
-For initial value runs, $N_\textrm{modes}=1$ and only the linear outputs corresponding to the most unstable run are given. When the eigenvalue solver is used $N_\textrm{modes}$ indicates the number of modes for which the linear outputs are given. 
+For initial value runs, $N_\textrm{modes}=1$ and only the linear outputs corresponding to the most unstable run are given. When the eigenvalue solver is used $N_\textrm{modes}$ indicates the number of modes for which the linear outputs are given. The tolerance on the growth rate still needs to be defined when an eigenvalue solver is used.
 
 
 \section{Parallel mode structure}
@@ -398,7 +436,7 @@ $$A_{\parallel Nf}(\theta) = \frac{\hat{A}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_
 $$B_{\parallel Nf}(\theta) = \frac{\hat{B}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
 
 \subsection{Moments of the distribution function}
-It may be interesting to add as an optional output the gyro-averaged moments of the distribution function. To be discussed.
+These entries are optionnal. Expressed in the Laboratory or rotating frame? 
 
 \subsection{Summary of the parallel outputs}
 \begin{tabularx}{\textwidth}{|L|S|S|S|}
@@ -409,6 +447,14 @@ poloidal\_angle & $-N_p\pi$ to $N_p\pi$ & Real & $N_\textrm{pol grid}$\\
 phi\_potential\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
 a\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
 b\_field\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\ 
+density\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+parallel\_velocity\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+parallel\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+perpendicular\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_density\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_parallel\_velocity\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_parallel\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_perpendicular\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
 \hline
 \end{tabularx}
 
@@ -432,7 +478,7 @@ with $\left<\phi\right>_\textrm{gy}$, $\left<A_{\parallel}\right>_\textrm{gy}$ a
 Note that the momentum flux in the expression above only includes the toroidal projection of the parallel momentum. The toroidal projection of the perpendicular momentum also contributes to the total momentum flux, see e.g. \cite{Scott:PoP2010}. This contribution is not included here but could be added in the future. 
 
 \subsection{Laboratory frame versus rotating frame}
-To describe inertial effects associated with the background rotation, several gyrokinetic codes (e.g. GKW, GENE, GS2) solve the gyro-kinetic equation in the frame rotating as a rigid body with the angular frequency $\omega_\Phi$. The Laboratory frame fluxes are of course the relevant ones for comparison with the experiments. They can be computed from quantities expressed in the rotating frame as follows:
+To describe inertial effects associated with the background rotation, several gyrokinetic codes (e.g. GKW, GENE, GS2) solve the gyro-kinetic equation in the frame rotating as a rigid body with the angular frequency $\omega_\Phi$. The Laboratory frame fluxes are of course the relevant ones for comparison with the experiments. They are related to quantities expressed in the rotating frame as follows:
 \begin{eqnarray}
 \Gamma_s^\textrm{L} &=& \Gamma_s^\textrm{co} \\
 \Pi_s^\textrm{L} &=& \Pi_s^\textrm{co} + \left< \int m_s\omega_\Phi\left(\frac{RB_t}{B}\right)^2 f_s \mathbf{v}_\chi\cdot \nabla r  \,\textrm{d}\mathbf{v}\right>\\
@@ -478,12 +524,54 @@ heat\_b\_field\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\te
 \end{tabularx}
 
 
+\chapter{Derived outputs}
+The derived outputs are computed internally to the GKDB and can be used for specific queries. 
+\section{Relative fields amplitude}
 
-\chapter{Meta-data}
+\section{Fields parity}
+
+\section{Simplified shape description}
 
 \chapter{Entry submission procedure}
+\section{Reference cases}
 
 \section{Checks}
+\subsection{Requirements}
+\begin{itemize}
+\item A species is identified by its charge and mass. There is one and only one species with a negative charge. This species is the electron species.
+\item The charge, mass, temperature and density of the electron species are:
+\begin{equation}
+ Z_{eN}=-1, \qquad \qquad m_{sN} = (2.7236\pm0.02)\times 10^{-4} \qquad \qquad T_{eN}=1 \qquad \qquad n_{eN}=1
+\end{equation}
+\item The species density and their gradients must satisfy quasineutrality:
+\begin{equation}
+ \sum_s n_{sN} = 0 \qquad \qquad \sum_s n_{sN} \frac{L_\tref}{L_{n_s}}=0
+\end{equation}
+\item If for at least one species $u_N\sqrt{m_{sN}/T_{sN}}>0.2$, centrifugal effects must be included
+\item If $\beta_{eN}>0$, magnetic flutter has to be included: include\_a\_parallel=1
+\item If $\beta_{eN}>0.5\%$, magnetic compression has to be included: include\_b\_field\_parallel=1
+\item The tolerance on the mode growth rate can not be more than $10\%$.
+\item For initial value runs, $N_\textrm{modes}=1$.
+\item The poloidal angle array ranges from $-N_p \pi$ to $N_p \pi$, with $N_p$ the number of poloidal turns.
+\item The poloidal angle array and the arrays containing the parallel structure of the fields have one common dimension.
+\item The fields have been rotated in the complex plane so that $\textrm{Im}\left[\phi_{Nf}(\theta=0)\right]=0$.
+
+\item One flux value per species and mode.
+\item Laboratory frame AND rotating frame fluxes are given in input.
+\end{itemize}
+
+\subsection{Consistency checks}
+\begin{itemize}
+\item The $r_N$ input should be consistent with the flux surface shape description $\{c_n,s_n\}$
+$$r_N = \frac{1}{2}\left[\max[a_N(\theta)\cos\theta]-\min[a_N(\theta)\sin\theta]\right]$$
+
+\end{itemize}
+
+\subsection{Sanity checks}
+\begin{itemize}
+\item If the amplitude of a field ($|\phi_{Nf}|$, $|A_{\parallel Nf}|$ or $|B_{\parallel Nf}|$) at the end of a field line is more than $5\%$ of its maximum, the number of poloidal turns should be increased.
+\item Numerical instability in the parallel direction: find a robust check (needs to work for MTM cases)
+\end{itemize}
 
 \chapter{Test cases}
 
