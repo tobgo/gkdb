@@ -18,7 +18,6 @@ class BaseModel(Model):
 class Point(BaseModel):
     creator = TextField()
     date = DateTimeField()
-    reference_case_flag = BooleanField()
     comment = TextField()
     beta = FloatField()
     collisionality = FloatField()
