@@ -12,7 +12,9 @@
 \usepackage{tabularx}
 
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\hsize=0.4\hsize}Y}
 \newcolumntype{S}{>{\hsize=0.6\hsize}Y}
+\newcolumntype{T}{>{\hsize=0.8\hsize}Y}
 \newcolumntype{L}{>{\hsize=1.2\hsize}X}
 
 \begin{document}
@@ -202,13 +204,9 @@ is not allowed in the database as it is inconsistent with the use of a finite $\
 \subsection{Plasma shape}
 A general description of local magnetic equilibria particularly convenient for gyrokinetic codes was introduced by J. Candy in \cite {Candy:PPCF2009}. It is used in the GKDB with a few minor modifications.
 The plasma shape is described by specifying the distance of the constant poloidal flux contours to the reference point $(R_0,Z_0)$  normalised to $L_\tref$:
-\begin{equation}
- a_N(r,\theta) = \frac{1}{L_\tref}\sqrt{\left[R_{\Psi}(r,\theta)-R_0\right]^2 + \left[Z_{\Psi}(r,\theta)-Z_0\right]^2}
-\end{equation}
+$$ a_N(r,\theta) = \frac{1}{L_\tref}\sqrt{\left[R_{\Psi}(r,\theta)-R_0\right]^2 + \left[Z_{\Psi}(r,\theta)-Z_0\right]^2} $$
 To allow regressions in the database the flux surface contours are parametrised as 
-\begin{equation}
- a_N(r,\theta) = \sum_{n=0}^{N_{sh}} c_n \cos(n\theta) + s_n \sin(n\theta)
-\end{equation}
+$$ a_N(r,\theta) = \sum_{n=0}^{N_{sh}} c_n \cos(n\theta) + s_n \sin(n\theta) $$
 The specification of the local magnetic equilibrium then requires $4N_{sh}+2$ terms, given at $r=r_0$, where $N_{sh}$ is the degree of the expansion: $\{c_n,s_n,\frac{\partial c_n}{\partial r_N},\frac{\partial s_n}{\partial r_N}\}$. Typically $N_{sh}\leq8$ is sufficient to capture most of the plasma shapes but higher values can be used when needed.
 
 \subsection{Summary of the shape parameters}
@@ -424,39 +422,6 @@ frequency & - & Real & $N_\textrm{modes}$ \\
 For initial value runs, $N_\textrm{modes}=1$ and only the linear outputs corresponding to the most unstable run are given. When the eigenvalue solver is used $N_\textrm{modes}$ indicates the number of modes for which the linear outputs are given. The tolerance on the growth rate still needs to be defined when an eigenvalue solver is used.
 
 
-\section{Parallel mode structure}
-\subsection{Parallel grid}
-The variation of the mode amplitude and phase in the parallel direction is given as a function of the poloidal angle $\theta$ defined previously.
-\subsection{Perturbed electrostatic potential}
-$$\phi_{Nf}(\theta) = \frac{\hat{\phi}_N(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
-The phase factor $\alpha$ is chosen so that the imaginary part of $\phi_{Nf}$ is zero at $\theta=0$ which makes comparisons of the mode structure between different runs easier. 
-\subsection{Perturbed parallel vector potential (magnetic field flutter)}
-$$A_{\parallel Nf}(\theta) = \frac{\hat{A}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
-\subsection{Perturbed parallel magnetic field (magnetic field compression)}
-$$B_{\parallel Nf}(\theta) = \frac{\hat{B}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
-
-\subsection{Moments of the distribution function}
-These entries are optionnal. Expressed in the Laboratory or rotating frame? 
-
-\subsection{Summary of the parallel outputs}
-\begin{tabularx}{\textwidth}{|L|S|S|S|}
-\hline
-Name & Value/Range & Type & Dimension \\
-\hline
-poloidal\_angle & $-N_p\pi$ to $N_p\pi$ & Real & $N_\textrm{pol grid}$\\
-phi\_potential\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
-a\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
-b\_field\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\ 
-density\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-parallel\_velocity\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-parallel\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-perpendicular\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-J0\_density\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-J0\_parallel\_velocity\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-J0\_parallel\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-J0\_perpendicular\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
-\hline
-\end{tabularx}
 
 
 \section{Gyro-center fluxes}
@@ -523,14 +488,73 @@ heat\_b\_field\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\te
 \hline
 \end{tabularx}
 
+\section{Parallel mode structure}
+\subsection{Parallel grid}
+The variation of the mode amplitude and phase in the parallel direction is given as a function of the poloidal angle $\theta$ defined previously.
+\subsection{Perturbed electrostatic potential}
+$$\phi_{Nf}(\theta) = \frac{\hat{\phi}_N(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
+The phase factor $\alpha$ is chosen so that the imaginary part of $\phi_{Nf}$ is zero at $\theta=0$ which makes comparisons of the mode structure between different runs easier. 
+\subsection{Perturbed parallel vector potential (magnetic field flutter)}
+$$A_{\parallel Nf}(\theta) = \frac{\hat{A}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
+\subsection{Perturbed parallel magnetic field (magnetic field compression)}
+$$B_{\parallel Nf}(\theta) = \frac{\hat{B}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
 
-\chapter{Derived outputs}
-The derived outputs are computed internally to the GKDB and can be used for specific queries. 
+\subsection{Moments of the distribution function}
+The following moments, expressed in the rotating frame, can also be stored in the database.  
+\begin{eqnarray*}
+\delta n & = & \int f_s \,\textrm{d}\mathbf{v}\\
+\delta v_\parallel & = & \int v_\parallel f_s \,\textrm{d}\mathbf{v} \\
+\delta T_\perp & = & \\
+\delta T_\parallel & = & 
+\end{eqnarray*}
+
+
+\subsection{Summary of the parallel outputs}
+\begin{tabularx}{\textwidth}{|L|R|R|Y|}
+\hline
+Name & Value/Range & Type & Dimension \\
+\hline
+poloidal\_angle & $[-N_p\pi,N_p\pi]$ & Real & $N_\textrm{pol grid}$\\
+phi\_potential\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
+a\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\
+b\_field\_parallel\_perturbed & - & Complex & $N_\textrm{pol grid}\times N_\textrm{modes}$\\ 
+density\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+parallel\_velocity\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+parallel\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+perpendicular\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_density\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_parallel\_velocity\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_parallel\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+J0\_perpendicular\_temperature\_moment & - & Complex & $N_\textrm{species}\times N_\textrm{pol grid}\times N_\textrm{modes}$\\
+\hline
+\end{tabularx}
+
+\chapter{Derived quantities}
+The derived quantities are computed internally when an entry is submitted to the GKDB and stored in the database. They can then be used for queries. 
+
 \section{Relative fields amplitude}
+The ratio of each field to the total mode amplitude is stored:
+\begin{equation*}
+A_\phi = \sqrt{\int |\phi_{Nf}(\theta)|^2\,\textrm{d}\theta}, \qquad \qquad
+A_{A_\parallel} = \sqrt{\int |A_{\parallel Nf}(\theta)|^2\,\textrm{d}\theta}, \qquad \qquad
+A_{B_\parallel} = \sqrt{\int |B_{\parallel Nf}(\theta)|^2\,\textrm{d}\theta}, 
+\end{equation*}
 
 \section{Fields parity}
+The field parity with respect to $\theta=0$ is computed as follows:
+\begin{equation*}
+\pi_\phi = \frac{\left| \int \phi_{Nf}(\theta) \,\textrm{d}\theta \right|}{\int |\phi_{Nf}(\theta)| \,\textrm{d}\theta}, \qquad \qquad 
+\pi_{A_\parallel} = \frac{\left| \int A_{\parallel Nf}(\theta) \,\textrm{d}\theta \right|}{\int |A_{\parallel Nf}(\theta)| \,\textrm{d}\theta}, \qquad \qquad 
+\pi_{B_\parallel} = \frac{\left| \int B_{\parallel Nf}(\theta) \,\textrm{d}\theta \right|}{\int |B_{\parallel Nf}(\theta)| \,\textrm{d}\theta}
+\end{equation*}
 
 \section{Simplified shape description}
+Elongation, triangularity, squareness
+
+
+\section{Effective charge}
+To have a fast and simple way to query on the plasma composition, the effective charge is computed:
+$$Z_\textrm{eff} = \sum_\textrm{ions} n_{sN}Z_{sN}^2$$ 
 
 \chapter{Entry submission procedure}
 \section{Reference cases}
@@ -545,20 +569,24 @@ The derived outputs are computed internally to the GKDB and can be used for spec
 \end{equation}
 \item The species density and their gradients must satisfy quasineutrality:
 \begin{equation}
- \sum_s n_{sN} = 0 \qquad \qquad \sum_s n_{sN} \frac{L_\tref}{L_{n_s}}=0
+ \sum_s n_{sN} = 0 \qquad \qquad \sum_s \frac{n_{sN}}{L_{n_s}}=0
 \end{equation}
-\item If for at least one species $u_N\sqrt{m_{sN}/T_{sN}}>0.2$, centrifugal effects must be included
+\item If at least one species has its Mach number $M_s=u_N\sqrt{m_{sN}/T_{sN}}>0.2$, centrifugal effects must be included
 \item If $\beta_{eN}>0$, magnetic flutter has to be included: include\_a\_parallel=1
 \item If $\beta_{eN}>0.5\%$, magnetic compression has to be included: include\_b\_field\_parallel=1
 \item The tolerance on the mode growth rate can not be more than $10\%$.
 \item For initial value runs, $N_\textrm{modes}=1$.
-\item The poloidal angle array ranges from $-N_p \pi$ to $N_p \pi$, with $N_p$ the number of poloidal turns.
-\item The poloidal angle array and the arrays containing the parallel structure of the fields have one common dimension.
+\item The poloidal angle array must range from $-N_p \pi$ to $N_p \pi$, with $N_p$ the number of poloidal turns.
+\item The arrays containing the parallel structure of the fields are of size $N_\textrm{pol grid}\times N_\textrm{modes}$ with $N_\textrm{pol grid}$ the length of the poloidal angle array.
 \item The fields have been rotated in the complex plane so that $\textrm{Im}\left[\phi_{Nf}(\theta=0)\right]=0$.
 
-\item One flux value per species and mode.
+\item The array containing the fluxes are of size $N_\textrm{species}\times N_\textrm{modes}$, i.e. one flux value is given per species and per mode (there may be several mode per wavevector when an eigenvalue solver is used).
 \item Laboratory frame AND rotating frame fluxes are given in input.
 \end{itemize}
+
+\subsection{Mandatory fields}
+All fields are mandatory, except the parallel structure of moments of the distribution function and, of course, the internally derived fields. 
+
 
 \subsection{Consistency checks}
 \begin{itemize}
@@ -570,8 +598,11 @@ $$r_N = \frac{1}{2}\left[\max[a_N(\theta)\cos\theta]-\min[a_N(\theta)\sin\theta]
 \subsection{Sanity checks}
 \begin{itemize}
 \item If the amplitude of a field ($|\phi_{Nf}|$, $|A_{\parallel Nf}|$ or $|B_{\parallel Nf}|$) at the end of a field line is more than $5\%$ of its maximum, the number of poloidal turns should be increased.
-\item Numerical instability in the parallel direction: find a robust check (needs to work for MTM cases)
+\item An attempt to detect runs that were numerically unstable in the parallel direction is made by testing that: 
 \end{itemize}
+
+\section{Append wave vectors to an entry}
+On user request. Automatically check that the point is identical.
 
 \chapter{Test cases}
 
