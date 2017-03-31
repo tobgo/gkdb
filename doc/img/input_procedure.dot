@@ -1,0 +1,9 @@
+digraph input_procedure{
+  "Gyrokinetic code"
+  "Gyrokinetic code" -> "GKDB JSON"
+  "Gyrokinetic code" -> "input file"
+  "GKDB JSON" -> "Peewee models"
+  "input file" -> "Peewee models"
+  "Peewee models" -> "SQL (staging)"
+  "SQL (staging)" -> "SQL"[label="after verification"]
+}

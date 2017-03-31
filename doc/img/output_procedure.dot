@@ -1,0 +1,5 @@
+digraph output_procedure{
+ "SQL" -> "Python (gkdb module)"
+ "SQL" -> "MATLAB (JDBC)"
+ "SQL" -> "IDL (pg_idl)"
+}

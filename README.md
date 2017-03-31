@@ -26,5 +26,22 @@ for point in Point.select():
     print(point.id)
 ```
 
+## Overview
+### Uploading results
+There are several steps in uploading results to the database.
+They are roughly shown in the following figure.
+First, you must provide the output data in the [GKDB JSON](doc/IO/gkdb_json.md) format.
+You should also provide the input file for your code so we can extract the relevant parameters.
+These are combined into a single `Point`, uploaded to the staging database and validated.
+If all checks passed the `Point` will be added to the main database automatically.
+
+![Procedure for adding data](doc/img/input_procedure.png)
+
+### Querying the database
+You can query the database with several different analysis tools.
+The only requirement here is that they should support querying an SQL database.
+
+![Querying the database](doc/img/output_procedure.png)
+
 ## Disclaimer
 This work has been carried out within the framework of the EUROfusion Consortium and has received funding from the Euratom research and training programme 2014-2018 under grant agreement No 633053. The views and opinions expressed herein do not necessarily reflect those of the European Commission.
