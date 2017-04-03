@@ -191,15 +191,18 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                 name=name,
                 version=version,
                 parameters=parameters,
+                include_centrifugal_effects=False,
+                include_a_parallel=em_effects[1],
+                include_b_field_parallel=em_effects[2],
                 collision_enhancement_factor=collisions[1],
                 collision_pitch_only=collisions[2],
                 collision_ei_only=collisions[3],
                 collision_momentum_conservation=collisions[4],
                 collision_energy_conservation=collisions[5],
                 collision_finite_larmor_radius=0,
-                collision_a_parallel=em_effects[1],
-                collision_b_field_parallel=em_effects[2])
-    code.save()
+                initial_value_run=False)
+    if code.save(force_insert=True) == 0:
+        raise Exception('Saving failed')
 
 #purge_tables()
 matgkdb = io.loadmat('gkdb.mat')
