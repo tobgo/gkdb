@@ -98,57 +98,57 @@ class Eigenvector(BaseModel):
 
 class Species(BaseModel):
     point = ForeignKeyField(Point, related_name='species')
-    charge = FloatField(help_text='')
-    mass = FloatField(help_text='')
-    density = FloatField(help_text='')
-    temperature = FloatField(help_text='')
-    toroidal_velocity = FloatField(help_text='')
-    density_log_gradient = FloatField(help_text='')
-    temperature_log_gradient = FloatField(help_text='')
-    toroidal_velocity_gradient = FloatField(help_text='')
+    charge = FloatField(help_text='Species charge')
+    mass = FloatField(help_text='Species mass')
+    density = FloatField(help_text='Species density')
+    temperature = FloatField(help_text='Species temperature')
+    toroidal_velocity = FloatField(help_text='Toroidal velocity (common to all species)')
+    density_log_gradient = FloatField(help_text='Species logarithmic density gradient (with respect to r_minor)')
+    temperature_log_gradient = FloatField(help_text='Species logarithmic temperature gradient (with respect to r_minor)')
+    toroidal_velocity_gradient = FloatField(help_text='Species toroidal velocity gradient (with respect to r_minor)')
 
 class Particle_Fluxes(BaseModel):
     species = ForeignKeyField(Species, related_name='particle_fluxes')
     eigenvalue = ForeignKeyField(Eigenvalue, related_name='particle_fluxes')
-    phi_potential = FloatField()
-    a_parallel = FloatField(null=True)
-    b_field_parallel = FloatField(null=True)
+    phi_potential = FloatField(help_text='Gyrocenter particle flux due to the electrostatic potential fluctuations. Identical in the Laboratory and rotating frames')
+    a_parallel = FloatField(null=True, help_text='Gyrocenter particle flux due to the parallel vector potential fluctuations (magnetic flutter). Identical in the Laboratory and rotating frames')
+    b_field_parallel = FloatField(null=True, help_text='Gyrocenter particle flux due to the parallel magnetic field fluctuations (magnetic compression). Identical in the Laboratory and rotating frames')
     class Meta:
         primary_key = CompositeKey('species', 'eigenvalue')
 
 class Heat_Fluxes_Lab(BaseModel):
     species = ForeignKeyField(Species, related_name='heat_fluxes_lab')
     eigenvalue = ForeignKeyField(Eigenvalue, related_name='heat_fluxes_lab')
-    phi_potential = FloatField()
-    a_parallel = FloatField(null=True)
-    b_field_parallel = FloatField(null=True)
+    phi_potential = FloatField(help_text='Gyrocenter heat flux due to the electrostatic potential fluctuations in the Laboratory frame')
+    a_parallel = FloatField(null=True, help_text='Gyrocenter heat flux due to the parallel vector potential fluctuations (magnetic flutter) in the Laboratory frame')
+    b_field_parallel = FloatField(null=True, help_text='Gyrocenter heat flux due to the parallel magnetic field fluctuations (magnetic compression) in the Laboratory frame')
     class Meta:
         primary_key = CompositeKey('species', 'eigenvalue')
 
 class Momentum_Fluxes_Lab(BaseModel):
     species = ForeignKeyField(Species, related_name='momentum_fluxes_lab')
     eigenvalue = ForeignKeyField(Eigenvalue, related_name='momentum_fluxes_lab')
-    phi_potential = FloatField()
-    a_parallel = FloatField(null=True)
-    b_field_parallel = FloatField(null=True)
+    phi_potential = FloatField(help_text='Gyrocenter momentum flux (toroidal projection of the parallel contribution only) due to the electrostatic potential fluctuations in the Laboratory frame')
+    a_parallel = FloatField(null=True, help_text='Gyrocenter momentm flux (toroidal projection of the parallel contribution only) due to the parallel vector potential fluctuations (magnetic flutter) in the Laboratory frame')
+    b_field_parallel = FloatField(null=True, help_text='Gyrocenter momentum flux (toroidal projection of the parallel contribution only) due to the parallel magnetic field fluctuations (magnetic compression) in the Laboratory frame')
     class Meta:
         primary_key = CompositeKey('species', 'eigenvalue')
 
 class Heat_Fluxes_Rotating(BaseModel):
     species = ForeignKeyField(Species, related_name='heat_fluxes_rotating')
     eigenvalue = ForeignKeyField(Eigenvalue, related_name='heat_fluxes_rotating')
-    phi_potential = FloatField()
-    a_parallel = FloatField(null=True)
-    b_field_parallel = FloatField(null=True)
+    phi_potential = FloatField(help_text='Gyrocenter heat flux due to the electrostatic potential fluctuations in the rotating frame')
+    a_parallel = FloatField(null=True, help_text='Gyrocenter heat flux due to the parallel vector potential fluctuations (magnetic flutter) in the rotating frame')
+    b_field_parallel = FloatField(null=True, help_text='Gyrocenter heat flux due to the parallel magnetic field fluctuations (magnetic compression) in the rotating frame')
     class Meta:
         primary_key = CompositeKey('species', 'eigenvalue')
 
 class Momentum_Fluxes_Rotating(BaseModel):
     species = ForeignKeyField(Species, related_name='momentum_fluxes')
     eigenvalue = ForeignKeyField(Eigenvalue, related_name='momentum_fluxes')
-    phi_potential = FloatField()
-    a_parallel = FloatField(null=True)
-    b_field_parallel = FloatField(null=True)
+    phi_potential = FloatField(help_text='Gyrocenter momentum flux (toroidal projection of the parallel contribution only) due to the electrostatic potential fluctuations in the rotating frame')
+    a_parallel = FloatField(null=True, help_text='Gyrocenter momentm flux (toroidal projection of the parallel contribution only) due to the parallel vector potential fluctuations (magnetic flutter) in the rotating frame')
+    b_field_parallel = FloatField(null=True, help_text='Gyrocenter momentum flux (toroidal projection of the parallel contribution only) due to the parallel magnetic field fluctuations (magnetic compression) in the rotating frame')
     class Meta:
         primary_key = CompositeKey('species', 'eigenvalue')
 
