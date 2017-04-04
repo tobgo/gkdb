@@ -194,11 +194,11 @@ $$\hat{s}=\frac{r}{q}\frac{\partial q}{\partial r}$$
 
 
 \subsection{Pressure gradient}
-$$\beta'_N = -\frac{2\mu_0 L_\tref}{B_\tref^2 }\frac{\partial p}{\partial r}$$
-with $p$ the total plasma pressure (i.e. the pressure term entering the Grad-Shafranov equation). $\beta'_N$ is a quantity related to the magnetic equilibrium and does not need to be consistent with the gradients ($L_\tref/L_{n_s}$, $L_\tref/L_{T_s}$) specified for the kinetic species.\\
+$$p'_N = -\frac{2\mu_0 L_\tref}{B_\tref^2 }\frac{\partial p}{\partial r}$$
+with $p$ the total plasma pressure (i.e. the pressure term entering the Grad-Shafranov equation). $p'_N$ (often called $\beta'$) is a quantity related to the magnetic equilibrium and does not need to be consistent with the gradients ($L_\tref/L_{n_s}$, $L_\tref/L_{T_s}$) specified for the kinetic species.\\
 Note that the low $\beta'$ approximation for the curvature drift, i.e. the approximation
 $$\mathbf{b}\times(\mathbf{b}\cdot\nabla\mathbf{n})=\frac{1}{2}\mathbf{b}\times\nabla r\frac{2\mu_0}{B^2}\frac{\partial p}{\partial r} + \frac{\mathbf{B}\times\nabla B}{B^2} \sim  \frac{\mathbf{B}\times\nabla B}{B^2}, $$
-is not allowed in the database as it is inconsistent with the use of a finite pressure gradient ($\beta'_N$) for the equilibrium description. 
+is not allowed in the database as it is inconsistent with the use of a finite pressure gradient ($p'_N$) for the equilibrium description. 
 
 
 \subsection{Plasma shape}
@@ -219,7 +219,7 @@ ip\_sign & $\pm 1$ & Integer & 1 \\
 b\_field\_tor\_sign & $\pm 1$ & Integer & 1 \\
 q & - & Real & 1 \\
 magnetic\_shear & - & Real & 1 \\
-beta\_gradient & - & Real & 1 \\
+pressure\_gradient & - & Real & 1 \\
 c & $\geq 0$ & Real & $N_{sh}+1$ \\
 dc\_dr\_minor & - & Real & $N_{sh}+1$ \\
 s & $\geq 0$ & Real & $N_{sh}$ \\
@@ -279,6 +279,7 @@ The strength of the electromagnetic effects depends on the ratio of the plasma p
 \begin{equation}
 \beta_{eN} = 2\mu_0 \frac{n_\tref T_\tref}{B_\tref^2}
 \end{equation}
+The plasma beta entering the Amp\`ere's law is obtained from the reference value above combined with the species parameters (normalised density and temperature).
 When $\beta_{eN}=0$, the run is electrostatic. 
 
 \subsection{Switches}
