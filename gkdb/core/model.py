@@ -53,7 +53,7 @@ class Flux_Surface(BaseModel):
     # Non-derived
     q = FloatField(help_text='Safety factor')
     magnetic_shear = FloatField(help_text='Magnetic shear')
-    beta_gradient = FloatField(help_text='Total pressure gradient (with respect to r_minor) used to characterise the local magnetic equilibrium')
+    pressure_gradient = FloatField(help_text='Total pressure gradient (with respect to r_minor) used to characterise the local magnetic equilibrium')
     ip_sign = SmallIntegerField(help_text='Direction of the toroidal plasma current, positive when anticlockwise from above')
     b_field_tor_sign = SmallIntegerField(help_text='Direction of the toroidal magnetic field, positive when anticlockwise from above')
     # Original shape
