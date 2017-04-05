@@ -69,7 +69,7 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                                 r_minor=equi[0],
                                 q=equi[1],
                                 magnetic_shear=equi[2],
-                                beta_gradient=equi[3],
+                                pressure_gradient=equi[3],
                                 ip_sign=equi[4],
                                 b_field_tor_sign=equi[5],
                                 c=[npsha[0]] + npsha[2::4],
