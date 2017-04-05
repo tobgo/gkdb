@@ -68,7 +68,8 @@ class Point(BaseModel):
 
 
         for flux_table in [Particle_Fluxes, Heat_Fluxes_Lab, Heat_Fluxes_Rotating,
-                           Momentum_Fluxes_Lab, Momentum_Fluxes_Rotating]:
+                           Momentum_Fluxes_Lab, Momentum_Fluxes_Rotating,
+                           Moments_Rotating]:
             name = flux_table.__name__.lower()
             sel = (self.select(Wavevector.id, flux_table)
                        .where(Point.id == self.id)
@@ -223,6 +224,28 @@ class Momentum_Fluxes_Rotating(BaseModel):
     class Meta:
         primary_key = CompositeKey('species', 'eigenvalue')
 
+class Moments_Rotating(BaseModel):
+    species = ForeignKeyField(Species, related_name='moments')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='moments')
+    r_density                      = ArrayField(FloatField)
+    r_parallel_velocity            = ArrayField(FloatField)
+    r_parallel_temperature         = ArrayField(FloatField)
+    r_perpendicular_temperature    = ArrayField(FloatField)
+    r_j0_density                   = ArrayField(FloatField)
+    r_j0_parallel_velocity         = ArrayField(FloatField)
+    r_j0_parallel_temperature      = ArrayField(FloatField)
+    r_j0_perpendicular_temperature = ArrayField(FloatField)
+    i_density                      = ArrayField(FloatField)
+    i_parallel_velocity            = ArrayField(FloatField)
+    i_parallel_temperature         = ArrayField(FloatField)
+    i_perpendicular_temperature    = ArrayField(FloatField)
+    i_j0_density                   = ArrayField(FloatField)
+    i_j0_parallel_velocity         = ArrayField(FloatField)
+    i_j0_parallel_temperature      = ArrayField(FloatField)
+    i_j0_perpendicular_temperature = ArrayField(FloatField)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
+
 def purge_tables():
     clsmembers = inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__)
     for name, cls in clsmembers:
@@ -231,4 +254,4 @@ def purge_tables():
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
-    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes])
+    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating])
