@@ -45,20 +45,20 @@ def matdict_to_SQL(matdict, eigenfunc_line):
 
     inputs = matdict[4][0][0]
 
-    collisions = inputs[3][0][0]
-    collisions = flatten_floatstruct(collisions)
-    collisionality = collisions[0]
-
     em_effects = inputs[2][0][0]
     em_effects = flatten_floatstruct(em_effects)
-    beta = em_effects[0]
 
     if creator is None:
         return
-    point = Point(comment=matdict[0], creator=creator, date=date, beta=beta, collisionality=collisionality)
+    point = Point(comment=matdict[0], creator=creator, date=date)
     point.save()
 
 
+    beta = em_effects[0]
+
+    collisions = inputs[3][0][0]
+    collisions = flatten_floatstruct(collisions)
+    collisionality = collisions[0]
 
     equi = inputs[0][0][0]
     sha = equi[4][0][0]
@@ -128,6 +128,7 @@ def matdict_to_SQL(matdict, eigenfunc_line):
     eigenvalues = flatten_floatstruct(outputs[0][0][0])
 
     npflux = flatten_floatstruct(outputs[2][0][0])
+    toroidal_velocity = []
     for ii, val in enumerate(np.hstack([np.array(npspe[1:]).reshape(7,8), np.array(npflux).reshape(7, 3*4)])):
         if not np.all([x is None for x in val]):
             if ii > 1:
@@ -136,12 +137,12 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                               mass                             =val[1] ,
                               density                          =val[2] ,
                               temperature                      =val[4] ,
-                              toroidal_velocity                =val[6] ,
                               density_log_gradient             =val[3] ,
                               temperature_log_gradient         =val[5] ,
                               toroidal_velocity_gradient       =val[7] ,
                               point=point)
             species.save()
+            toroidal_velocity.append(val[6])
 
             fluxes = Particle_Fluxes(phi_potential           =val[8] ,
                               a_parallel              =val[9] ,
@@ -166,6 +167,15 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                               #field_momentum_phi_potential     =val[17],
                               #field_momentum_a_parallel        =val[18],
                               #field_momentum_b_field_parallel  =val[19],
+    if np.all(np.equal(toroidal_velocity, toroidal_velocity[0])):
+        toroidal_velocity = toroidal_velocity[0]
+    else:
+        embed()
+        raise Exception('toroidal_velocity not equal for all species!')
+
+    species_global = Species_Global(point=point, beta=beta, collisionality=collisionality, collision_enhancement_factor=collisions[1], toroidal_velocity=toroidal_velocity)
+    species_global.save(force_insert=True)
+
 
     code = matdict[6][0][0]
     #if np.all(code[3] == -999999999):
@@ -194,7 +204,6 @@ def matdict_to_SQL(matdict, eigenfunc_line):
                 include_centrifugal_effects=False,
                 include_a_parallel=em_effects[1],
                 include_b_field_parallel=em_effects[2],
-                collision_enhancement_factor=collisions[1],
                 collision_pitch_only=collisions[2],
                 collision_ei_only=collisions[3],
                 collision_momentum_conservation=collisions[4],

@@ -23,8 +23,6 @@ class Point(BaseModel):
     creator = TextField(help_text='Name of the creator of this entry')
     date = DateTimeField(help_text='Creation date of this entry')
     comment = TextField(help_text='Any comment describing this entry')
-    beta = FloatField(help_text='Plasma beta')
-    collisionality = FloatField(help_text='Plasma collision frequency')
 
     def to_dict(self):
         model_dict = model_to_dict(self, exclude=[Point.id, Point.date])
@@ -34,12 +32,18 @@ class Point(BaseModel):
                 model_to_dict(species,
                               recurse=False,
                               exclude=[Species.id, Species.point_id]))
-        model_dict['wavevectors'] = []
+        model_dict['species_global'] = model_to_dict(self.species_global.get(),
+                                                     recurse=False,
+                                                     exclude=[Species_Global.point_id,
+                                                              Species_Global.zeff])
+
         model_dict['flux_surface'] = model_to_dict(self.flux_surface.get(),
                                                    recurse=False,
-                                                   exclude=[Flux_Surface.elongation,
+                                                   exclude=[Flux_Surface.point_id,
+                                                            Flux_Surface.elongation,
                                                             Flux_Surface.triangularity,
                                                             Flux_Surface.squareness])
+        model_dict['wavevectors'] = []
         for wavevector in self.wavevector.select():
             model_dict['wavevectors'].append(
                 model_to_dict(wavevector,
@@ -109,7 +113,6 @@ class Code(BaseModel):
     collision_momentum_conservation = BooleanField(help_text='True if the collision operator conserves momentum, false otherwise.')
     collision_energy_conservation = BooleanField(help_text='True if the collision operator conserves energy, false otherwise.')
     collision_finite_larmor_radius = BooleanField(help_text='True if the collision operator includes finite Larmor radius effects, false otherwise.')
-    collision_enhancement_factor = FloatField(help_text='Enhancement factor for the collisions of electrons on main ions (to mimic the impact of impurity ions not present in the run)')
 
     initial_value_run = BooleanField(help_text='True if the run was an initial value run. False if it was an eigenvalue run.')
     class Meta:
@@ -133,6 +136,17 @@ class Flux_Surface(BaseModel):
     s = ArrayField(FloatField, help_text='Array containing the s_n coefficients parametrising the flux surface of interest. The first element is always zero.')
     dc_dr_minor = ArrayField(FloatField, help_text='Radial derivative (with respect to r_minor) of the c_n coefficients')
     ds_dr_minor = ArrayField(FloatField, help_text='Radial derivative (with respect to r_minor) of the s_n coefficients. The first element is always zero.')
+    class Meta:
+        primary_key = CompositeKey('point')
+
+class Species_Global(BaseModel):
+    point = ForeignKeyField(Point, related_name='species_global')
+    beta = FloatField(help_text='Plasma beta')
+    collisionality = FloatField(help_text='Plasma collision frequency')
+    collision_enhancement_factor = FloatField(help_text='Enhancement factor for the collisions of electrons on main ions (to mimic the impact of impurity ions not present in the run)')
+    toroidal_velocity = FloatField(help_text='Toroidal velocity (common to all species)')
+    # Derived from Species
+    zeff = FloatField(null=True)
     class Meta:
         primary_key = CompositeKey('point')
 
@@ -174,7 +188,6 @@ class Species(BaseModel):
     mass = FloatField(help_text='Species mass')
     density = FloatField(help_text='Species density')
     temperature = FloatField(help_text='Species temperature')
-    toroidal_velocity = FloatField(help_text='Toroidal velocity (common to all species)')
     density_log_gradient = FloatField(help_text='Species logarithmic density gradient (with respect to r_minor)')
     temperature_log_gradient = FloatField(help_text='Species logarithmic temperature gradient (with respect to r_minor)')
     toroidal_velocity_gradient = FloatField(help_text='Species toroidal velocity gradient (with respect to r_minor)')
@@ -254,4 +267,4 @@ def purge_tables():
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
-    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating])
+    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating, Species_Global])
