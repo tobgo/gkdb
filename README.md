@@ -3,6 +3,10 @@ Welcome! The GyroKinetic DataBase (GKDB) is a public accessable database of Gyro
 
 The database is temporarly hosted on [gkdb.qualikiz.com](http://gkdb.qualikiz.com/?pgsql=localhost&db=gkdb) and managed by [Karel van de Plassche](https://github.com/Karel-van-de-Plassche). Please send an [email](mailto:k.l.vandeplassche@differ.nl) if you need access. If you use this code or database results in a publication, please first send an [email](mailto:j.citrin@differ.nl) to the project officer [Jonathan Citrin](https://github.com/jcitrin) so the appropriate references can be agreed upon.
 
+## Dependencies
+* Peewee
+* Psycopcg2
+
 ## Quickstart
 1. Clone the repository (assuming you have [SSH keys set up](https://help.github.com/articles/connecting-to-github-with-ssh/))
 
@@ -14,7 +18,7 @@ The database is temporarly hosted on [gkdb.qualikiz.com](http://gkdb.qualikiz.co
 2. Set up PostgreSQL username and password
 
   ```bash
-  echo gkdb.qualikiz.com:*:*:$(username):$(password) > ~/.pgpass
+  echo 'gkdb.qualikiz.com:*:*:$(username):$(password)' > ~/.pgpass
   chmod 600 ~/.pgpass
   ```
 

@@ -3,7 +3,7 @@ from peewee import FloatField, FloatField, ProgrammingError
 import numpy as np
 import inspect
 import sys
-from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField
+from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField, IndexedFieldMixin
 from IPython import embed
 import scipy as sc
 from scipy import io
@@ -15,12 +15,20 @@ class BaseModel(Model):
         database = db
         schema = 'develop'
 
+class GistFloatField(IndexedFieldMixin, FloatField):
+    pass
+
 class Point(BaseModel):
     creator = TextField()
     date = DateTimeField()
     comment = TextField()
     beta = FloatField()
     collisionality = FloatField()
+
+    class Meta:
+        indexes = (
+            (('beta', 'collisionality'), False),
+        )
 
 class Code(BaseModel):
     point = ForeignKeyField(Point, related_name='code')
@@ -45,7 +53,7 @@ class Code(BaseModel):
 
 class Flux_Surface(BaseModel):
     point = ForeignKeyField(Point, related_name='flux_surface')
-    r_minor = FloatField()
+    r_minor = GistFloatField() # forces composite index below to be gist
     # Derived from Shape
     elongation = FloatField()
     triangularity = FloatField()
@@ -63,6 +71,10 @@ class Flux_Surface(BaseModel):
     ds_dr_minor = ArrayField(FloatField)
     class Meta:
         primary_key = CompositeKey('point')
+        indexes = (
+            (('r_minor', 'q', 'magnetic_shear', 'beta_gradient',
+              'elongation', 'triangularity', 'squareness'), False),
+        )
 
 class Wavevector(BaseModel):
     point = ForeignKeyField(Point, related_name='wavevector')
@@ -71,8 +83,8 @@ class Wavevector(BaseModel):
     poloidal_turns = IntegerField()
 
 class Eigenvalue(BaseModel):
-    wavevector                   = ForeignKeyField(Wavevector, related_name='eigenvalue')
-    growth_rate                  = FloatField()
+    wavevector                   = ForeignKeyField(Wavevector, related_name='eigenvalue', index=True)
+    growth_rate                  = GistFloatField() # force gist index on composite
     frequency                    = FloatField()
     growth_rate_tolerance        = FloatField()
 
@@ -83,6 +95,11 @@ class Eigenvalue(BaseModel):
     a_parity = FloatField()
     b_amplitude = FloatField()
     b_parity = FloatField()
+    class Meta:
+        indexes = (
+            (('frequency', 'growth_rate', 'phi_amplitude', 'phi_parity',
+              'a_amplitude', 'a_parity', 'b_amplitude', 'b_parity'), False),
+        )
 
 class Eigenvector(BaseModel):
     eigenvalue                   = ForeignKeyField(Eigenvalue, related_name='eigenvector')
@@ -104,8 +121,13 @@ class Species(BaseModel):
     temperature = FloatField()
     toroidal_velocity = FloatField()
     density_log_gradient = FloatField()
-    temperature_log_gradient = FloatField()
+    temperature_log_gradient = GistFloatField()
     toroidal_velocity_gradient = FloatField()
+    class Meta:
+        indexes = (
+            (('temperature_log_gradient', 'density_log_gradient',
+              'toroidal_velocity_gradient', 'temperature', 'toroidal_velocity'), False)
+        )
 
 class Particle_Fluxes(BaseModel):
     species = ForeignKeyField(Species, related_name='particle_fluxes')
@@ -155,8 +177,9 @@ class Momentum_Fluxes_Rotating(BaseModel):
 def purge_tables():
     clsmembers = inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__)
     for name, cls in clsmembers:
-        if name != BaseModel:
+        if name != BaseModel and name != "GistFloatField":
             try:
+                print(name)
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
