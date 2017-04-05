@@ -4,6 +4,7 @@ import numpy as np
 import inspect
 import sys
 from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField
+from playhouse.shortcuts import model_to_dict
 from IPython import embed
 import scipy as sc
 from scipy import io
@@ -15,12 +16,19 @@ class BaseModel(Model):
         database = db
         schema = 'develop'
 
+class Tag(BaseModel):
+    name =    TextField(null=True)
+    doi =     TextField(null=True)
+    comment = TextField(null=True)
+
 class Point(BaseModel):
     creator = TextField(help_text='Name of the creator of this entry')
     date = DateTimeField(help_text='Creation date of this entry')
     comment = TextField(help_text='Any comment describing this entry')
-    beta = FloatField(help_text='Plasma beta')
-    collisionality = FloatField(help_text='Plasma collision frequency')
+
+class Point_Tag(BaseModel):
+    point = ForeignKeyField(Point)
+    tag = ForeignKeyField(Tag)
 
 class Code(BaseModel):
     point = ForeignKeyField(Point, related_name='code')
@@ -37,7 +45,6 @@ class Code(BaseModel):
     collision_momentum_conservation = BooleanField(help_text='True if the collision operator conserves momentum, false otherwise.')
     collision_energy_conservation = BooleanField(help_text='True if the collision operator conserves energy, false otherwise.')
     collision_finite_larmor_radius = BooleanField(help_text='True if the collision operator includes finite Larmor radius effects, false otherwise.')
-    collision_enhancement_factor = FloatField(help_text='Enhancement factor for the collisions of electrons on main ions (to mimic the impact of impurity ions not present in the run)')
 
     initial_value_run = BooleanField(help_text='True if the run was an initial value run. False if it was an eigenvalue run.')
     class Meta:
@@ -61,6 +68,17 @@ class Flux_Surface(BaseModel):
     s = ArrayField(FloatField, help_text='Array containing the s_n coefficients parametrising the flux surface of interest. The first element is always zero.')
     dc_dr_minor = ArrayField(FloatField, help_text='Radial derivative (with respect to r_minor) of the c_n coefficients')
     ds_dr_minor = ArrayField(FloatField, help_text='Radial derivative (with respect to r_minor) of the s_n coefficients. The first element is always zero.')
+    class Meta:
+        primary_key = CompositeKey('point')
+
+class Species_Global(BaseModel):
+    point = ForeignKeyField(Point, related_name='species_global')
+    beta = FloatField(help_text='Plasma beta')
+    collisionality = FloatField(help_text='Plasma collision frequency')
+    collision_enhancement_factor = FloatField(help_text='Enhancement factor for the collisions of electrons on main ions (to mimic the impact of impurity ions not present in the run)')
+    toroidal_velocity = FloatField(help_text='Toroidal velocity (common to all species)')
+    # Derived from Species
+    zeff = FloatField(null=True)
     class Meta:
         primary_key = CompositeKey('point')
 
@@ -102,7 +120,6 @@ class Species(BaseModel):
     mass = FloatField(help_text='Species mass')
     density = FloatField(help_text='Species density')
     temperature = FloatField(help_text='Species temperature')
-    toroidal_velocity = FloatField(help_text='Toroidal velocity (common to all species)')
     density_log_gradient = FloatField(help_text='Species logarithmic density gradient (with respect to r_minor)')
     temperature_log_gradient = FloatField(help_text='Species logarithmic temperature gradient (with respect to r_minor)')
     toroidal_velocity_gradient = FloatField(help_text='Species toroidal velocity gradient (with respect to r_minor)')
@@ -152,6 +169,28 @@ class Momentum_Fluxes_Rotating(BaseModel):
     class Meta:
         primary_key = CompositeKey('species', 'eigenvalue')
 
+class Moments_Rotating(BaseModel):
+    species = ForeignKeyField(Species, related_name='moments')
+    eigenvalue = ForeignKeyField(Eigenvalue, related_name='moments')
+    r_density                      = ArrayField(FloatField)
+    r_parallel_velocity            = ArrayField(FloatField)
+    r_parallel_temperature         = ArrayField(FloatField)
+    r_perpendicular_temperature    = ArrayField(FloatField)
+    r_j0_density                   = ArrayField(FloatField)
+    r_j0_parallel_velocity         = ArrayField(FloatField)
+    r_j0_parallel_temperature      = ArrayField(FloatField)
+    r_j0_perpendicular_temperature = ArrayField(FloatField)
+    i_density                      = ArrayField(FloatField)
+    i_parallel_velocity            = ArrayField(FloatField)
+    i_parallel_temperature         = ArrayField(FloatField)
+    i_perpendicular_temperature    = ArrayField(FloatField)
+    i_j0_density                   = ArrayField(FloatField)
+    i_j0_parallel_velocity         = ArrayField(FloatField)
+    i_j0_parallel_temperature      = ArrayField(FloatField)
+    i_j0_perpendicular_temperature = ArrayField(FloatField)
+    class Meta:
+        primary_key = CompositeKey('species', 'eigenvalue')
+
 def purge_tables():
     clsmembers = inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__)
     for name, cls in clsmembers:
@@ -160,4 +199,4 @@ def purge_tables():
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
-    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes])
+    db.create_tables([Tag, Point_Tag, Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating, Species_Global])
