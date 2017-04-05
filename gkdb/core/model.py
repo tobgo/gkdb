@@ -19,6 +19,11 @@ class BaseModel(Model):
         database = db
         schema = 'develop'
 
+class Tag(BaseModel):
+    name =    TextField(null=True)
+    doi =     TextField(null=True)
+    comment = TextField(null=True)
+
 class Point(BaseModel):
     creator = TextField(help_text='Name of the creator of this entry')
     date = DateTimeField(help_text='Creation date of this entry')
@@ -99,6 +104,10 @@ class Point(BaseModel):
     def to_json(self, path):
         with open(path, 'w') as file_:
             json.dump(self.to_dict(), file_, indent=4, sort_keys=True)
+
+class Point_Tag(BaseModel):
+    point = ForeignKeyField(Point)
+    tag = ForeignKeyField(Tag)
 
 class Code(BaseModel):
     point = ForeignKeyField(Point, related_name='code')
@@ -269,4 +278,4 @@ def purge_tables():
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
-    db.create_tables([Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating, Species_Global])
+    db.create_tables([Tag, Point_Tag, Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating, Species_Global])

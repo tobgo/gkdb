@@ -21,7 +21,7 @@ def flatten_floatstruct(floatstruct):
         nparray.append(val)
     return nparray
 
-def matdict_to_SQL(matdict, eigenfunc_line):
+def matdict_to_SQL(matdict, eigenfunc_line, tag):
     if np.all(matdict[3] == 0):
         caseflag = False
     elif np.all(matdict[3] == 1):
@@ -53,6 +53,8 @@ def matdict_to_SQL(matdict, eigenfunc_line):
     point = Point(comment=matdict[0], creator=creator, date=date)
     point.save()
 
+    point_tag = Point_Tag(point=point, tag=tag)
+    point_tag.save()
 
     beta = em_effects[0]
 
@@ -218,5 +220,7 @@ matgkdb = io.loadmat('gkdb.mat')
 with open('output.tab', newline='') as f:
     reader = csv.reader(f)
     reader.__next__()
+    tag = Tag(name='old-gkdb')
+    tag.save()
     for ii, (matdict, eigenfunc_line) in enumerate(zip(matgkdb['gyrokinetic_linear'][0], reader)):
-        matdict_to_SQL(matdict, eigenfunc_line)
+        matdict_to_SQL(matdict, eigenfunc_line, tag)
