@@ -89,6 +89,8 @@ class Point(BaseModel):
                                                index=['wavevector_id', 'species_id', 'eigenvalue_id'])
                 xr = df.to_xarray()
                 for k, v in xr.data_vars.items():
+                    axes = [dim[:-3] for dim in v.dims]
+                    model_dict[name]['axes'] = axes
                     model_dict[name][k] =  v.data.tolist()
             else:
                 model_dict[name] = None
