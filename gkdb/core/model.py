@@ -169,7 +169,8 @@ class Point(BaseModel):
         with open(path, 'w') as file_:
             json.dump(self.to_dict(), file_, indent=4, sort_keys=True)
 
-    def from_json(self, path):
+    @classmethod
+    def from_json(cls, path):
         with open(path, 'r') as file_:
             dict_ = json.load(file_)
             point = Point.from_dict(dict_)
