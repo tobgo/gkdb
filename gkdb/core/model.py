@@ -124,7 +124,7 @@ class Point(BaseModel):
                 name = simple.__name__.lower()
                 entry = dict_to_model(simple, model_dict.pop(name))
                 entry.point = point
-                entry.save()
+                entry.save(force_insert=True)
 
             eigenvalues = []
             for ii, wavevector_dict in enumerate(model_dict.pop('wavevectors')):
@@ -139,7 +139,7 @@ class Point(BaseModel):
                     eigenvalue.wavevector = wavevector
                     eigenvalue.save()
                     eigenvector.eigenvalue = eigenvalue
-                    eigenvector.save()
+                    eigenvector.save(force_insert=True)
 
                     eigenvalues[ii].append(eigenvalue)
 
@@ -162,7 +162,7 @@ class Point(BaseModel):
                     entry = dict_to_model(flux_table, row)
                     entry.species = specieses[spec]
                     entry.eigenvalue = eigenvalues[wave][eig]
-                    entry.save()
+                    entry.save(force_insert=True)
         return point
 
     def to_json(self, path):
