@@ -4,7 +4,7 @@ import numpy as np
 import inspect
 import sys
 from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField
-from playhouse.shortcuts import model_to_dict
+from playhouse.shortcuts import model_to_dict, dict_to_model
 from IPython import embed
 import scipy as sc
 from scipy import io
@@ -96,9 +96,78 @@ class Point(BaseModel):
                 model_dict[name] = None
         return model_dict
 
+
+    @classmethod
+    def from_dict(cls, model_dict):
+        import xarray as xr
+        with db.atomic() as txn:
+            dict_ = model_dict.pop('point')
+            dict_['date'] = datetime.datetime.now()
+            point = dict_to_model(Point, dict_)
+            point.save()
+
+            specieses = []
+            for species_dict in model_dict.pop('species'):
+                species = dict_to_model(Species, species_dict)
+                species.point = point
+                species.save()
+                specieses.append(species)
+
+            for simple in [Code, Species_Global, Flux_Surface]:
+                name = simple.__name__.lower()
+                entry = dict_to_model(simple, model_dict.pop(name))
+                entry.point = point
+                entry.save(force_insert=True)
+
+            eigenvalues = []
+            for ii, wavevector_dict in enumerate(model_dict.pop('wavevectors')):
+                eigenvalues.append([])
+                eigenvalues_dict = wavevector_dict.pop('eigenvalues')
+                wavevector = dict_to_model(Wavevector, wavevector_dict)
+                wavevector.point = point
+                wavevector.save()
+                for jj, eigenvalue_dict in enumerate(eigenvalues_dict):
+                    eigenvector = dict_to_model(Eigenvector, eigenvalue_dict.pop('eigenvector'))
+                    eigenvalue = dict_to_model(Eigenvalue, eigenvalue_dict)
+                    eigenvalue.wavevector = wavevector
+                    eigenvalue.save()
+                    eigenvector.eigenvalue = eigenvalue
+                    eigenvector.save(force_insert=True)
+
+                    eigenvalues[ii].append(eigenvalue)
+
+
+            for flux_table in [Particle_Fluxes, Heat_Fluxes_Lab, Heat_Fluxes_Rotating,
+                               Momentum_Fluxes_Lab, Momentum_Fluxes_Rotating,
+                               Moments_Rotating]:
+                name = flux_table.__name__.lower()
+                flux_dict = model_dict.pop(name)
+                try:
+                    axes = flux_dict.pop('axes')
+                except AttributeError:
+                    continue
+                ds = xr.Dataset()
+                for varname, data in flux_dict.items():
+                    ds = ds.merge(xr.Dataset({varname: (axes, data)}))
+                df = ds.to_dataframe()
+                for index, row in df.iterrows():
+                    eig, spec, wave = index
+                    entry = dict_to_model(flux_table, row)
+                    entry.species = specieses[spec]
+                    entry.eigenvalue = eigenvalues[wave][eig]
+                    entry.save(force_insert=True)
+        return point
+
     def to_json(self, path):
         with open(path, 'w') as file_:
             json.dump(self.to_dict(), file_, indent=4, sort_keys=True)
+
+    @classmethod
+    def from_json(cls, path):
+        with open(path, 'r') as file_:
+            dict_ = json.load(file_)
+            point = Point.from_dict(dict_)
+        return point
 
 class Point_Tag(BaseModel):
     point = ForeignKeyField(Point)
