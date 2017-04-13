@@ -4,7 +4,7 @@ import numpy as np
 import inspect
 import sys
 from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField
-from playhouse.shortcuts import model_to_dict
+from playhouse.shortcuts import model_to_dict, dict_to_model
 from IPython import embed
 import scipy as sc
 from scipy import io
@@ -103,9 +103,102 @@ class Point(BaseModel):
                 model_dict[name] = None
         return model_dict
 
+
+    @classmethod
+    def from_dict(cls, model_dict):
+        with db.atomic() as txn:
+            dict_ = model_dict.pop('point')
+            dict_['date'] = datetime.datetime.now()
+            point = dict_to_model(Point, dict_)
+            point.save()
+
+            model_dict['species'] = []
+            for species_dict in model_dict.pop('species'):
+                species = dict_to_model(Species, species_dict)
+                species.point = point
+                species.save()
+
+            for simple in [Code, Species_Global, Flux_Surface]:
+                name = simple.__name__.lower()
+                entry = dict_to_model(simple, model_dict.pop(name))
+                entry.point = point
+                entry.save()
+
+            for wavevector_dict in model_dict.pop('wavevectors'):
+                eigenvalues = wavevector_dict.pop('eigenvalues')
+                wavevector = dict_to_model(Wavevector, wavevector_dict)
+                wavevector.point = point
+                wavevector.save()
+                for eigenvalue_dict in eigenvalues:
+                    eigenvector = dict_to_model(Eigenvector, eigenvalue_dict.pop('eigenvector'))
+                    eigenvalue = dict_to_model(Eigenvalue, eigenvalue_dict)
+                    eigenvalue.wavevector = wavevector
+                    eigenvalue.save()
+                    eigenvector.eigenvalue = eigenvalue
+                    eigenvector.save()
+            embed()
+
+            model_dict['wavevectors'] = []
+            for wavevector in self.wavevector.select():
+                model_dict['wavevectors'].append(
+                    model_to_dict(wavevector,
+                                  recurse=False,
+                                  exclude=[Wavevector.id, Wavevector.point_id]))
+                eigenvalue_list = model_dict['wavevectors'][-1]['eigenvalues'] = []
+                for eigenvalue in wavevector.eigenvalue.select():
+                    eigenvalue_list.append(
+                        model_to_dict(eigenvalue,
+                                      recurse=False,
+                                      exclude=[Eigenvalue.id,
+                                               Eigenvalue.wavevector_id,
+                                               Eigenvalue.a_amplitude,
+                                               Eigenvalue.phi_amplitude,
+                                               Eigenvalue.phi_parity,
+                                               Eigenvalue.a_amplitude,
+                                               Eigenvalue.a_parity,
+                                               Eigenvalue.b_amplitude,
+                                               Eigenvalue.b_parity,
+                                               ]))
+                    eigenvalue_list[-1]['eigenvector'] = (
+                        model_to_dict(eigenvalue.eigenvector.get(),
+                                      recurse=False,
+                                      exclude=[Eigenvector.eigenvalue_id]))
+
+
+
+            for flux_table in [Particle_Fluxes, Heat_Fluxes_Lab, Heat_Fluxes_Rotating,
+                               Momentum_Fluxes_Lab, Momentum_Fluxes_Rotating,
+                               Moments_Rotating]:
+                name = flux_table.__name__.lower()
+                sel = (self.select(Wavevector.id, flux_table)
+                           .where(Point.id == self.id)
+                           .join(Wavevector, JOIN_LEFT_OUTER)
+                           .join(Eigenvalue, JOIN_LEFT_OUTER)
+                           .join(Species, JOIN_LEFT_OUTER, (Species.point_id == Point.id))
+                           .join(flux_table).tuples())
+                if sel.count() > 0:
+                    model_dict[name] = {}
+                    df = pd.DataFrame.from_records(list(sel),
+                                                   columns=['wavevector_id', 'species_id', 'eigenvalue_id',
+                                                            'phi_potential', 'a_parallel', 'b_field_parallel'],
+                                                   index=['wavevector_id', 'species_id', 'eigenvalue_id'])
+                    xr = df.to_xarray()
+                    for k, v in xr.data_vars.items():
+                        axes = [dim[:-3] for dim in v.dims]
+                        model_dict[name]['axes'] = axes
+                        model_dict[name][k] =  v.data.tolist()
+                else:
+                    model_dict[name] = None
+        return model_dict
+
     def to_json(self, path):
         with open(path, 'w') as file_:
             json.dump(self.to_dict(), file_, indent=4, sort_keys=True)
+
+    def from_json(self, path):
+        with open(path, 'r') as file_:
+            dict_ = json.load(file_)
+            Point.from_dict(dict_)
 
 class Point_Tag(BaseModel):
     point = ForeignKeyField(Point)
