@@ -106,17 +106,19 @@ class Point(BaseModel):
 
     @classmethod
     def from_dict(cls, model_dict):
+        import xarray as xr
         with db.atomic() as txn:
             dict_ = model_dict.pop('point')
             dict_['date'] = datetime.datetime.now()
             point = dict_to_model(Point, dict_)
             point.save()
 
-            model_dict['species'] = []
+            specieses = []
             for species_dict in model_dict.pop('species'):
                 species = dict_to_model(Species, species_dict)
                 species.point = point
                 species.save()
+                specieses.append(species)
 
             for simple in [Code, Species_Global, Flux_Surface]:
                 name = simple.__name__.lower()
@@ -124,72 +126,44 @@ class Point(BaseModel):
                 entry.point = point
                 entry.save()
 
-            for wavevector_dict in model_dict.pop('wavevectors'):
-                eigenvalues = wavevector_dict.pop('eigenvalues')
+            eigenvalues = []
+            for ii, wavevector_dict in enumerate(model_dict.pop('wavevectors')):
+                eigenvalues.append([])
+                eigenvalues_dict = wavevector_dict.pop('eigenvalues')
                 wavevector = dict_to_model(Wavevector, wavevector_dict)
                 wavevector.point = point
                 wavevector.save()
-                for eigenvalue_dict in eigenvalues:
+                for jj, eigenvalue_dict in enumerate(eigenvalues_dict):
                     eigenvector = dict_to_model(Eigenvector, eigenvalue_dict.pop('eigenvector'))
                     eigenvalue = dict_to_model(Eigenvalue, eigenvalue_dict)
                     eigenvalue.wavevector = wavevector
                     eigenvalue.save()
                     eigenvector.eigenvalue = eigenvalue
                     eigenvector.save()
-            embed()
 
-            model_dict['wavevectors'] = []
-            for wavevector in self.wavevector.select():
-                model_dict['wavevectors'].append(
-                    model_to_dict(wavevector,
-                                  recurse=False,
-                                  exclude=[Wavevector.id, Wavevector.point_id]))
-                eigenvalue_list = model_dict['wavevectors'][-1]['eigenvalues'] = []
-                for eigenvalue in wavevector.eigenvalue.select():
-                    eigenvalue_list.append(
-                        model_to_dict(eigenvalue,
-                                      recurse=False,
-                                      exclude=[Eigenvalue.id,
-                                               Eigenvalue.wavevector_id,
-                                               Eigenvalue.a_amplitude,
-                                               Eigenvalue.phi_amplitude,
-                                               Eigenvalue.phi_parity,
-                                               Eigenvalue.a_amplitude,
-                                               Eigenvalue.a_parity,
-                                               Eigenvalue.b_amplitude,
-                                               Eigenvalue.b_parity,
-                                               ]))
-                    eigenvalue_list[-1]['eigenvector'] = (
-                        model_to_dict(eigenvalue.eigenvector.get(),
-                                      recurse=False,
-                                      exclude=[Eigenvector.eigenvalue_id]))
-
+                    eigenvalues[ii].append(eigenvalue)
 
 
             for flux_table in [Particle_Fluxes, Heat_Fluxes_Lab, Heat_Fluxes_Rotating,
                                Momentum_Fluxes_Lab, Momentum_Fluxes_Rotating,
                                Moments_Rotating]:
                 name = flux_table.__name__.lower()
-                sel = (self.select(Wavevector.id, flux_table)
-                           .where(Point.id == self.id)
-                           .join(Wavevector, JOIN_LEFT_OUTER)
-                           .join(Eigenvalue, JOIN_LEFT_OUTER)
-                           .join(Species, JOIN_LEFT_OUTER, (Species.point_id == Point.id))
-                           .join(flux_table).tuples())
-                if sel.count() > 0:
-                    model_dict[name] = {}
-                    df = pd.DataFrame.from_records(list(sel),
-                                                   columns=['wavevector_id', 'species_id', 'eigenvalue_id',
-                                                            'phi_potential', 'a_parallel', 'b_field_parallel'],
-                                                   index=['wavevector_id', 'species_id', 'eigenvalue_id'])
-                    xr = df.to_xarray()
-                    for k, v in xr.data_vars.items():
-                        axes = [dim[:-3] for dim in v.dims]
-                        model_dict[name]['axes'] = axes
-                        model_dict[name][k] =  v.data.tolist()
-                else:
-                    model_dict[name] = None
-        return model_dict
+                flux_dict = model_dict.pop(name)
+                try:
+                    axes = flux_dict.pop('axes')
+                except AttributeError:
+                    continue
+                ds = xr.Dataset()
+                for varname, data in flux_dict.items():
+                    ds = ds.merge(xr.Dataset({varname: (axes, data)}))
+                df = ds.to_dataframe()
+                for index, row in df.iterrows():
+                    eig, spec, wave = index
+                    entry = dict_to_model(flux_table, row)
+                    entry.species = specieses[spec]
+                    entry.eigenvalue = eigenvalues[wave][eig]
+                    entry.save()
+        return point
 
     def to_json(self, path):
         with open(path, 'w') as file_:
@@ -198,7 +172,8 @@ class Point(BaseModel):
     def from_json(self, path):
         with open(path, 'r') as file_:
             dict_ = json.load(file_)
-            Point.from_dict(dict_)
+            point = Point.from_dict(dict_)
+        return point
 
 class Point_Tag(BaseModel):
     point = ForeignKeyField(Point)
