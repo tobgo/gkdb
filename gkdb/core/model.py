@@ -30,7 +30,9 @@ class Point(BaseModel):
     comment = TextField(help_text='Any comment describing this entry')
 
     def to_dict(self):
-        model_dict = model_to_dict(self, exclude=[Point.id, Point.date])
+        model_dict = {}
+        model_dict['point'] = model_to_dict(self, exclude=[Point.id, Point.date])
+        model_dict['code'] = model_to_dict(self.code.get(), exclude=[Code.point_id])
         model_dict['species'] = []
         for species in self.species:
             model_dict['species'].append(
