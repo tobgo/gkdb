@@ -269,12 +269,12 @@ class Eigenvalue(BaseModel):
     growth_rate_tolerance        = FloatField(help_text='Tolerance used for to determine the mode growth rate convergence')
 
     # Derived quantities
-    phi_amplitude = FloatField(help_text='Relative amplitude of the electrostatic potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
-    phi_parity = FloatField(help_text='Parity of the electrostatic potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
-    a_amplitude = FloatField(help_text='Relative amplitude of the parallel vector potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
-    a_parity = FloatField(help_text='Parity of the parallel vector potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
-    b_amplitude = FloatField(help_text='Relative amplitude of the parallel magnetic field perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
-    b_parity = FloatField(help_text='Parity of the parallel magnetic field perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
+    phi_amplitude = FloatField(null=True, help_text='Relative amplitude of the electrostatic potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
+    phi_parity =    FloatField(null=True, help_text='Parity of the electrostatic potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
+    a_amplitude =   FloatField(null=True, help_text='Relative amplitude of the parallel vector potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
+    a_parity =      FloatField(null=True, help_text='Parity of the parallel vector potential perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
+    b_amplitude =   FloatField(null=True, help_text='Relative amplitude of the parallel magnetic field perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
+    b_parity =      FloatField(null=True, help_text='Parity of the parallel magnetic field perturbations. Computed internally from the parallel structure of the fields (eigenvectors)')
 
 class Eigenvector(BaseModel):
     eigenvalue                   = ForeignKeyField(Eigenvalue, related_name='eigenvector')
