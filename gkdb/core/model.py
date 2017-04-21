@@ -11,8 +11,18 @@ from scipy import io
 import json
 import datetime
 import pandas as pd
+from os import environ
 
-db = PostgresqlExtDatabase(database='gkdb', host='gkdb.qualikiz.com')
+try:
+    HOST = environ['PGHOST'] or 'gkdb.org'
+except KeyError:
+    HOST = 'gkdb.org'
+try:
+    DATABASE = environ['PGDATABASE']
+except KeyError:
+    DATABASE = 'gkdb'
+
+db = PostgresqlExtDatabase(database=DATABASE, host=HOST)
 class BaseModel(Model):
     """A base model that will use our Postgresql database"""
     class Meta:
@@ -342,4 +352,5 @@ def purge_tables():
                 db.drop_table(cls, cascade=True)
             except ProgrammingError:
                 db.rollback()
+    db.execute_sql('SET ROLE developer')
     db.create_tables([Tag, Point_Tag, Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating, Species_Global])
