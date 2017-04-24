@@ -303,7 +303,7 @@ include\_b\_field\_parallel & 0 or 1 & Logical & 1 \\
 \subsection{Plasma collisionality}
 The normalised collision frequency
 \begin{equation}
- \nu_{eN} = \frac{q_\tref^2}{16\pi\epsilon_0}\frac{R_\tref n_\tref}{T_\tref^2}
+ \nu_{eN} = \frac{q_\tref^4}{4\pi\epsilon_0^2}\frac{R_\tref n_\tref}{T_\tref^2}
 \end{equation}
 is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$, $n_\tref$ in $[\textrm{m}^{-3}]$ and $T_\tref$ in $[\textrm{eV}]$. It is assumed that each species collisionality is calculated in the code consistently with the species input parameters (i.e. the normalised species temperature and density are used to calculate the collisionality of each species). This behaviour can be altered by specific collisionality switches described in Sec.~\ref{sec:colswitches}.\\
 
@@ -572,7 +572,7 @@ with $s_i$ the duplicated species entries for species $s$, identified by their c
 \item A species is identified by its charge, mass and temperature. The species with a negative charge is the electron species.
 \item The charge, mass, temperature and density of the electron species are:
 \begin{equation}
- Z_{eN}=-1, \qquad \qquad m_{sN} = (2.7236\pm0.02)\times 10^{-4} \qquad \qquad T_{eN}=1 \qquad \qquad n_{eN}=1
+ Z_{eN}=-1, \qquad \qquad m_{sN} = 2.7237\times 10^{-4} \qquad \qquad T_{eN}=1 \qquad \qquad n_{eN}=1
 \end{equation}
 \item The species density and their gradients must satisfy quasineutrality:
 \begin{equation}
