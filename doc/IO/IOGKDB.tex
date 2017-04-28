@@ -197,7 +197,7 @@ $$\hat{s}=\frac{r}{q}\frac{\partial q}{\partial r}$$
 $$p'_N = -\frac{2\mu_0 L_\tref}{B_\tref^2 }\frac{\partial p}{\partial r}$$
 with $p$ the total plasma pressure (i.e. the pressure term entering the Grad-Shafranov equation). $p'_N$ (often called $\beta'$) is a quantity related to the magnetic equilibrium and does not need to be consistent with the gradients ($L_\tref/L_{n_s}$, $L_\tref/L_{T_s}$) specified for the kinetic species.\\
 Note that the low $\beta'$ approximation for the curvature drift, i.e. the approximation
-$$\mathbf{b}\times(\mathbf{b}\cdot\nabla\mathbf{n})=\frac{1}{2}\mathbf{b}\times\nabla r\frac{2\mu_0}{B^2}\frac{\partial p}{\partial r} + \frac{\mathbf{B}\times\nabla B}{B^2} \sim  \frac{\mathbf{B}\times\nabla B}{B^2}, $$
+$$\mathbf{b}\times(\mathbf{b}\cdot\nabla\mathbf{b})=\frac{1}{2}\mathbf{b}\times\nabla r\frac{2\mu_0}{B^2}\frac{\partial p}{\partial r} + \frac{\mathbf{B}\times\nabla B}{B^2} \sim  \frac{\mathbf{B}\times\nabla B}{B^2}, $$
 is not allowed in the database as it is inconsistent with the use of a finite pressure gradient ($p'_N$) for the equilibrium description. 
 
 
@@ -316,7 +316,7 @@ is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$,
 \item Is energy conservation ensured?
 \item Are finite Larmor radius effects retained in the collision treatment?
 \end{itemize}
-Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. Jpwever, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,\\
+Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. However, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,\\
 
 \subsection{Summary of the collision parameters}
 \begin{tabularx}{\textwidth}{|L|S|S|S|}
@@ -386,7 +386,7 @@ tag  &  - & String & $N_\textrm{tags}$ \\
 In linear runs, unstable modes are exponentially growing in time and so are the associated fluxes. 
 The exponentially growing outputs stored in the database are therefore normalised to a dimensionless mode amplitude defined as:
 \begin{equation}
- A_f(k_x,k_y)(t) = \sqrt{\int \left[|\hat{\phi}_N(k_x,k_y,\theta)|^2 + |\hat{A}_{\parallel N}(k_x,k_y,\theta)|^2  + |\hat{B}_{\parallel N}(k_x,k_y,\theta)|^2\right] \,\textrm{d}\theta}
+ A_f(k_x,k_y) = \frac{1}{2\pi}\sqrt{\int \left[|\hat{\phi}_N(k_x,k_y,\theta)|^2 + |\hat{A}_{\parallel N}(k_x,k_y,\theta)|^2  + |\hat{B}_{\parallel N}(k_x,k_y,\theta)|^2\right] \,\textrm{d}\theta}
 \end{equation}
 with the Fourrier components of the electrostatic potential and vector potential normalised as follows:
 \begin{equation}
@@ -394,7 +394,7 @@ with the Fourrier components of the electrostatic potential and vector potential
   \hat{A}_{\parallel N}=\frac{1}{\rho_*^2}\frac{1}{L_\tref B_\tref} \hat{A}_\parallel \qquad \qquad
   \hat{B}_{\parallel N}=\frac{1}{\rho_*}\frac{1}{B_\tref} \hat{B}_\parallel
 \end{equation}
-where $\rho_*=\rho_\tref/L_\tref$.
+where $\rho_*=\rho_\tref/L_\tref$. The integral over $\theta$ is performed over the full length of the flux-tube.\\
 The value of the mode amplitude in a linear run has little meaning by itself and is not stored in the database. 
 
 \section{Mode growth rate and frequency}
@@ -405,10 +405,10 @@ The normalisations of the mode growth rate $\gamma$ and frequency $\omega_r$ are
 By convention, unstable modes have a positive growth rate and modes propagating in the ion diamagnetic drift direction have a positive frequency (and therefore a negative frequency when they are propagating in the electron diamagnetic drift direction).\\
 
 For initial value runs, the following (post-processing) method is used to determine the tolerance on the run convergence:
-$$\gamma_\textrm{tol} = \sqrt{\frac{1}{\Delta t}\int_{t-\Delta t}^t \gamma^2(t)\,\textrm{dt}}$$
-where $\Delta t \sim 1/\gamma$ (here the final $\gamma$ value can be used) and
+$$\gamma_\textrm{tol} = 1-\frac{1}{\gamma_f}\sqrt{\frac{1}{\Delta t}\int_{t_f-\Delta t}^{t_f} \gamma^2(t)\,\textrm{dt}}$$
+where $t_f$ and $\gamma_f$ are the time and growth rate at the end of the simulation, respectively, $\Delta t = 1/\gamma_f$ and
 $$\gamma(t)=\frac{1}{\delta t}[\ln{A_f(t)}-\ln{A_f(t-\delta t)}]$$
-with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$to compute the time dependent growth rate..
+with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$ to compute the time dependent growth rate..
 
 \subsection{Summary of the eigenvalue outputs}
 \begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
@@ -430,7 +430,7 @@ For initial value runs, $N_\textrm{modes}=1$ and only the linear outputs corresp
 For each species, the flux-surface averaged contravariant radial component of the particle flux, energy flux and toroidal angular momentum flux are given by:
 \begin{eqnarray}
  \Gamma_s &=& \left<\int f_s \left[\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp} + \mathbf{v}_{\nabla B_\parallel}  \right]\cdot \nabla r\,\textrm{d}\mathbf{v}\right> \\
-  \Pi_s   &=& \left<\int m_s R \frac{B_t}{B}v_\parallel f_s  \left[\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp} + \mathbf{v}_{\nabla B_\parallel}  \right] \cdot \nabla r\,\textrm{d}\mathbf{v}\right> \\
+  \Pi_s   &=& \left<\int s_b m_s R \frac{B_t}{B}v_\parallel f_s  \left[\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp} + \mathbf{v}_{\nabla B_\parallel}  \right] \cdot \nabla r\,\textrm{d}\mathbf{v}\right> \\
       Q_s &=& \left<\int \frac{1}{2}m_sv^2 f_s \left[\mathbf{v}_\mathbf{E} + \mathbf{v}_{\mathbf{B}_\perp} + \mathbf{v}_{\nabla B_\parallel}  \right] \cdot \nabla r\,\textrm{d}\mathbf{v}\right> 
 \end{eqnarray}
 where $f_s$ is the perturbed guiding center distribution function of species $s$ and the two terms on the right hand side correspond to the fluxes induced by the electrostatic, magnetic flutter and magnetic compression drifts:
@@ -439,8 +439,7 @@ where $f_s$ is the perturbed guiding center distribution function of species $s$
  \mathbf{v}_{\mathbf{B}_\perp} = -v_\parallel \frac{\mathbf{b}\times \nabla \left<A_{\parallel}\right>_\textrm{gy}}{B}  \qquad \qquad \qquad
  \mathbf{v}_{\nabla B_\parallel} = \frac{\mu}{Ze} \frac{\mathbf{b}\times \nabla \left<B_{\parallel}\right>_\textrm{gy}}{B}
 \end{equation}
-with $\left<\phi\right>_\textrm{gy}$, $\left<A_{\parallel}\right>_\textrm{gy}$ and $\left<B_{\parallel}\right>_\textrm{gy}$, the gyro-averaged perturbed electrostatic potential, parallel vector potential and parallel magnetic field, respectively.
-
+with $\left<\phi\right>_\textrm{gy}$, $\left<A_{\parallel}\right>_\textrm{gy}$ and $\left<B_{\parallel}\right>_\textrm{gy}$, the gyro-averaged perturbed electrostatic potential, parallel vector potential and parallel magnetic field, respectively. The fluxes are positive when outward (for a transported quantity that is positive).\\
 Note that the momentum flux in the expression above only includes the toroidal projection of the parallel momentum. The toroidal projection of the perpendicular momentum also contributes to the total momentum flux, see e.g. \cite{Scott:PoP2010}. This contribution is not included here but could be added in the future. 
 
 \subsection{Laboratory frame versus rotating frame}
@@ -460,11 +459,11 @@ For convenience, both the Laboratory frame and rotating frame fluxes are stored 
 \subsection{Normalisation}
 The fluxes are given for each Fourier mode, normalised to the corresponding (linear) mode amplitude and made dimensionless as follows:
 \begin{eqnarray}
- \Gamma_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{\Gamma_s(k_x,k_y)}{n_\tref \vthref \rho_*^2}\\
- \Pi_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{\Pi_s(k_x,k_y)}{n_\tref m_\tref L_\tref \vthref^2 \rho_*^2}\\
- Q_{Ns}(k_x,k_y) &=& \frac{1}{A_f}\frac{Q_s(k_x,k_y)}{n_\tref T_\tref \vthref \rho_*^2}
+ \Gamma_{Ns}(k_x,k_y) &=& \frac{1}{A_f^2}\frac{\Gamma_s(k_x,k_y)}{n_\tref \vthref \rho_*^2}\\
+ \Pi_{Ns}(k_x,k_y) &=& \frac{1}{A_f^2}\frac{\Pi_s(k_x,k_y)}{n_\tref m_\tref L_\tref \vthref^2 \rho_*^2}\\
+ Q_{Ns}(k_x,k_y) &=& \frac{1}{A_f^2}\frac{Q_s(k_x,k_y)}{n_\tref T_\tref \vthref \rho_*^2}
 \end{eqnarray}
-In addition, the electrostaticm magnetic flutter and magnetic compressions are stored separately (e.g. $\Gamma_{Ns}=\Gamma_{Ns,\phi}+\Gamma_{Ns,A_\parallel}+\Gamma_{Ns,B_\parallel}$) for each flux. 
+In addition, the electrostatic magnetic flutter and magnetic compressions are stored separately (e.g. $\Gamma_{Ns}=\Gamma_{Ns,\phi}+\Gamma_{Ns,A_\parallel}+\Gamma_{Ns,B_\parallel}$) for each flux. Note that the $\rho_*^2$ factor is included in $A_f^2$.
 
 \subsection{Summary of the fluxes outputs}
 \begin{tabularx}{\textwidth}{|L|S|S|S|}
@@ -494,20 +493,29 @@ heat\_b\_field\_parallel\_co\_frame & - & Real & $N_\textrm{species}\times N_\te
 The variation of the mode amplitude and phase in the parallel direction is given as a function of the poloidal angle $\theta$ defined previously.
 \subsection{Perturbed electrostatic potential}
 $$\phi_{Nf}(\theta) = \frac{\hat{\phi}_N(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
-The phase factor $\alpha$ is chosen so that the imaginary part of $\phi_{Nf}$ is zero at $\theta=0$ which makes comparisons of the mode structure between different runs easier. 
+The phase factor $\alpha$ is chosen so that the imaginary part of $\phi_{Nf}$ is zero at $\theta=0$ which makes comparisons of the mode structure between different runs easier.
+When $|\phi_{Nf}(\theta=0)|=0$, $\alpha$ is taken to be zero.
+ 
 \subsection{Perturbed parallel vector potential (magnetic field flutter)}
 $$A_{\parallel Nf}(\theta) = \frac{\hat{A}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
 \subsection{Perturbed parallel magnetic field (magnetic field compression)}
 $$B_{\parallel Nf}(\theta) = \frac{\hat{B}_{\parallel N}(k_x,k_y,\theta)}{A_f(k_x,k_y)}\textrm{e}^{i\alpha}$$
 
 \subsection{Moments of the distribution function}
-The following moments, expressed in the rotating frame, can also be stored in the database.  
-\begin{eqnarray*}
-\delta n & = & \int f_s \,\textrm{d}\mathbf{v}\\
-\delta v_\parallel & = & \int v_\parallel f_s \,\textrm{d}\mathbf{v} \\
-\delta T_\perp & = & \\
-\delta T_\parallel & = & 
-\end{eqnarray*}
+Moments of the distribution function, expressed in the rotating frame, can also be stored in the database. The moments are given as a function of the poloidal angle $\theta$ for each species and Fourier mode and defined as follows:
+\begin{align*}
+\delta n_s(\theta,k_x,k_y) & =  \int \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta n_s^{J_0}(\theta,k_x,k_y) & =  \int J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v} \\
+\delta v_{\parallel s}(\theta,k_x,k_y) & =  \int v_\parallel \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta v_{\parallel s}^{J_0}(\theta,k_x,k_y) & =  \int v_\parallel J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}\\
+\delta p_{\perp s}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\perp^2 \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta p_{\perp s}^{J_0}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\perp^2 J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}\\
+\delta p_{\parallel s}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\parallel^2 \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta p_{\parallel s}^{J_0}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\parallel^2 J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}
+\end{align*}
+with $J_0$ the Bessel function. The normalisation of the moments is given by:
+\begin{align*}
+\delta n_{sN} & = \frac{\delta n_s}{n_\tref A_f\rho_*}& \delta n_{sN}^{J_0} & = \frac{\delta n_s^{J_0}}{n_\tref A_f\rho_*} \\
+\delta v_{\parallel sN} & = \frac{\delta v_{\parallel s}}{\vthref A_f\rho_*}& \delta v_{\parallel sN}^{J_0} & = \frac{\delta v_{\parallel s}^{J_0}}{\vthref A_f\rho_*} \\
+\delta p_{\perp sN} & = \frac{\delta p_{\perp s}}{n_\tref T_\tref A_f\rho_*}& \delta p_{\perp sN}^{J_0} & = \frac{\delta p_{\perp s}^{J_0}}{n_\tref T_\tref A_f\rho_*} \\
+\delta p_{\parallel sN} & = \frac{\delta p_{\parallel s}}{n_\tref T_\tref A_f\rho_*}& \delta p_{\parallel sN}^{J_0} & = \frac{\delta p_{\parallel s}^{J_0}}{n_\tref T_\tref A_f\rho_*} 
+\end{align*}
 
 
 \subsection{Summary of the parallel outputs}
