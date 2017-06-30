@@ -147,24 +147,28 @@ class Point(BaseModel):
                     eigenvalues[ii].append(eigenvalue)
 
 
-            for flux_table in [Particle_Fluxes, Heat_Fluxes_Lab, Heat_Fluxes_Rotating,
+            for flux_table in [Particle_Fluxes,
+                               Heat_Fluxes_Lab, Heat_Fluxes_Rotating,
                                Momentum_Fluxes_Lab, Momentum_Fluxes_Rotating,
                                Moments_Rotating]:
                 name = flux_table.__name__.lower()
                 flux_dict = model_dict.pop(name)
-                try:
-                    axes = flux_dict.pop('axes')
-                except AttributeError:
-                    continue
+                axes = flux_dict.pop('axes')
                 ds = xr.Dataset()
                 for varname, data in flux_dict.items():
                     ds = ds.merge(xr.Dataset({varname: (axes, data)}))
                 df = ds.to_dataframe()
+                if "poloidal_angle" in axes:
+                    df = df.unstack('poloidal_angle')
                 for index, row in df.iterrows():
-                    eig, spec, wave = index
-                    entry = dict_to_model(flux_table, row)
-                    entry.species = specieses[spec]
-                    entry.eigenvalue = eigenvalues[wave][eig]
+                    ind = dict(zip(df.index.names,index))
+                    if "poloidal_angle" in axes:
+                        row = row.unstack()
+                        entry = dict_to_model(flux_table, {name: val for name, val in zip(row.index, row.as_matrix().tolist())})
+                    else:
+                        entry = dict_to_model(flux_table, row)
+                    entry.species = specieses[ind['species']]
+                    entry.eigenvalue = eigenvalues[ind['wavevector']][ind['eigenvalue']]
                     entry.save(force_insert=True)
         return point
 
@@ -257,7 +261,7 @@ class Eigenvalue(BaseModel):
 
 class Eigenvector(BaseModel):
     eigenvalue                   = ForeignKeyField(Eigenvalue, related_name='eigenvector')
-    r_phi_potential_perturbed    = ArrayField(FloatField, help_text='Parallel structure of the electrostatic potential perturbations (real part)')
+    r_phi_potential_perturbed    = ArrayField(FloatField, help_text='Parallel structure of the electrostatic potential perturbations (real part)', dimensions=1)
     i_phi_potential_perturbed    = ArrayField(FloatField, help_text='Parallel structure of the electrostatic potential perturbations (imaginary part)')
     r_a_parallel_perturbed       = ArrayField(FloatField, null=True, help_text='Parallel structure of the parallel vector potential perturbations (real part)')
     i_a_parallel_perturbed       = ArrayField(FloatField, null=True, help_text='Parallel structure of the parallel vector potential perturbations (imaginary part)')
