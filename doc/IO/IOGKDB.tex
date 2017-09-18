@@ -108,7 +108,7 @@ The six fundamental reference quantities are:
 \item $T_\tref=T_e(r_0,\theta=0)$, the electron temperature at $\theta=0$
 \item $n_\tref=n_e(r_0,\theta=0)$, the electron density at $\theta=0$
 \item $L_\tref=R_0$, the reference length
-\item $B_\tref=B_t(R_0)$, the reference magnetic field (toroidal magnetic field at the flux surface center)
+\item $B_\tref=B_t(R_0,Z_0)$, the reference magnetic field (toroidal magnetic field at the flux surface center)
 \end{itemize}
 
 \subsection{Derived reference quantities}
@@ -506,15 +506,15 @@ Moments of the distribution function, expressed in the rotating frame, can also 
 \begin{align*}
 \delta n_s(\theta,k_x,k_y) & =  \int \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta n_s^{J_0}(\theta,k_x,k_y) & =  \int J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v} \\
 \delta v_{\parallel s}(\theta,k_x,k_y) & =  \int v_\parallel \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta v_{\parallel s}^{J_0}(\theta,k_x,k_y) & =  \int v_\parallel J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}\\
-\delta p_{\perp s}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\perp^2 \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta p_{\perp s}^{J_0}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\perp^2 J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}\\
-\delta p_{\parallel s}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\parallel^2 \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta p_{\parallel s}^{J_0}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\parallel^2 J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}
+\delta T_{\perp s}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\perp^2 \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta T_{\perp s}^{J_0}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\perp^2 J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}\\
+\delta T_{\parallel s}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\parallel^2 \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}& \delta T_{\parallel s}^{J_0}(\theta,k_x,k_y) & =  \int \frac{1}{2}m_s v_\parallel^2 J_0(k_\perp\rho_s) \hat{f}_s(\theta,k_x,k_y) \,\textrm{d}\mathbf{v}
 \end{align*}
 with $J_0$ the Bessel function. The normalisation of the moments is given by:
 \begin{align*}
 \delta n_{sN} & = \frac{\delta n_s}{n_\tref A_f\rho_*}& \delta n_{sN}^{J_0} & = \frac{\delta n_s^{J_0}}{n_\tref A_f\rho_*} \\
 \delta v_{\parallel sN} & = \frac{\delta v_{\parallel s}}{\vthref A_f\rho_*}& \delta v_{\parallel sN}^{J_0} & = \frac{\delta v_{\parallel s}^{J_0}}{\vthref A_f\rho_*} \\
-\delta p_{\perp sN} & = \frac{\delta p_{\perp s}}{n_\tref T_\tref A_f\rho_*}& \delta p_{\perp sN}^{J_0} & = \frac{\delta p_{\perp s}^{J_0}}{n_\tref T_\tref A_f\rho_*} \\
-\delta p_{\parallel sN} & = \frac{\delta p_{\parallel s}}{n_\tref T_\tref A_f\rho_*}& \delta p_{\parallel sN}^{J_0} & = \frac{\delta p_{\parallel s}^{J_0}}{n_\tref T_\tref A_f\rho_*} 
+\delta T_{\perp sN} & = \frac{\delta T_{\perp s}}{n_\tref T_\tref A_f\rho_*}& \delta T_{\perp sN}^{J_0} & = \frac{\delta T_{\perp s}^{J_0}}{n_\tref T_\tref A_f\rho_*} \\
+\delta T_{\parallel sN} & = \frac{\delta T_{\parallel s}}{n_\tref T_\tref A_f\rho_*}& \delta T_{\parallel sN}^{J_0} & = \frac{\delta T_{\parallel s}^{J_0}}{n_\tref T_\tref A_f\rho_*} 
 \end{align*}
 
 
@@ -584,7 +584,7 @@ with $s_i$ the duplicated species entries for species $s$, identified by their c
 \end{equation}
 \item The species density and their gradients must satisfy quasineutrality:
 \begin{equation}
- \sum_s n_{sN} = 0 \qquad \qquad \sum_s \frac{n_{sN}}{L_{n_s}}=0
+ \sum_s Z_{sN}n_{sN} = 0 \qquad \qquad \sum_s Z_{sN}\frac{n_{sN}}{L_{n_s}}=0
 \end{equation}
 \item If at least one species has its Mach number $M_s=u_N\sqrt{m_{sN}/T_{sN}}>0.2$, centrifugal effects must be included
 \item If $\beta_{eN}>0$, magnetic flutter has to be included: include\_a\_parallel=1
