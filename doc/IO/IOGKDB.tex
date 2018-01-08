@@ -23,7 +23,7 @@
 
 \author{Y. Camenen on behalf of the GKDB working group}
 
-\date{Last update: March 30, 2017}
+\date{Last update: January 8, 2018}
 
 \maketitle
 
@@ -408,7 +408,7 @@ For initial value runs, the following (post-processing) method is used to determ
 $$\gamma_\textrm{tol} = 1-\frac{1}{\gamma_f}\sqrt{\frac{1}{\Delta t}\int_{t_f-\Delta t}^{t_f} \gamma^2(t)\,\textrm{dt}}$$
 where $t_f$ and $\gamma_f$ are the time and growth rate at the end of the simulation, respectively, $\Delta t = 1/\gamma_f$ and
 $$\gamma(t)=\frac{1}{\delta t}[\ln{A_f(t)}-\ln{A_f(t-\delta t)}]$$
-with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$ to compute the time dependent growth rate..
+with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$ to compute the time dependent growth rate.
 
 \subsection{Summary of the eigenvalue outputs}
 \begin{tabularx}{\textwidth}{|X|Y|Y|Y|}
