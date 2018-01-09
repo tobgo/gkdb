@@ -639,7 +639,7 @@ for iN=1:Nout % loop over output files
 
  
  out{iN}.point.creator='Camenen';
- out{iN}.point.comment=['scan=' flnm ', proj=' proj char(10) comments];
+ out{iN}.point.comment=['scan=' flnm ', proj=' proj '\n' comments];
 
  out{iN}.code.name='GKW';
  out{iN}.code.parameters='';
