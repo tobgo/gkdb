@@ -1,7 +1,7 @@
 % Generate a JSON file containing GKW inputs/outputs with the GKDB conventions
 % The standard GKW matlab scripts are used to load the data
 %  
-%
+%   [out,is_ok,ok_msg]=gkw2json(flnm,proj,flpth_json,comments,N_shape,flpth_hamada) 
 % 
 % Inputs:
 %   flnm:         scan name
@@ -112,35 +112,35 @@ for iN=1:Nout % loop over output files
  nsp = G{ii}.GRIDSIZE.number_of_species; % number of kinetic species
  
  % initialise arrays for fluxes and moments (with 1 eigenvalue only)
- out{iN}.particle_fluxes.phi_potential=zeros(nsp,1,length(II));
- out{iN}.particle_fluxes.a_parallel=zeros(nsp,1,length(II));
- out{iN}.particle_fluxes.b_field_parallel=zeros(nsp,1,length(II));
- out{iN}.particle_fluxes.axes={'species'  'eigenvalue'  'wavevector'};
+ out{iN}.particle_fluxes.phi_potential=zeros(nsp,length(II),1);
+ out{iN}.particle_fluxes.a_parallel=zeros(nsp,length(II),1);
+ out{iN}.particle_fluxes.b_field_parallel=zeros(nsp,length(II),1);
+ out{iN}.particle_fluxes.axes={'species'  'wavevector'  'eigenvalue'};
 
- out{iN}.momentum_fluxes_lab.phi_potential=zeros(nsp,1,length(II));
- out{iN}.momentum_fluxes_lab.a_parallel=zeros(nsp,1,length(II));
- out{iN}.momentum_fluxes_lab.b_field_parallel=zeros(nsp,1,length(II));
- out{iN}.momentum_fluxes_lab.axes={'species'  'eigenvalue'  'wavevector'};
- out{iN}.momentum_fluxes_rotating.phi_potential=zeros(nsp,1,length(II));
- out{iN}.momentum_fluxes_rotating.a_parallel=zeros(nsp,1,length(II));
- out{iN}.momentum_fluxes_rotating.b_field_parallel=zeros(nsp,1,length(II));
- out{iN}.momentum_fluxes_rotating.axes={'species'  'eigenvalue' 'wavevector'};
+ out{iN}.momentum_fluxes_lab.phi_potential=zeros(nsp,length(II),1);
+ out{iN}.momentum_fluxes_lab.a_parallel=zeros(nsp,length(II),1);
+ out{iN}.momentum_fluxes_lab.b_field_parallel=zeros(nsp,length(II),1);
+ out{iN}.momentum_fluxes_lab.axes={'species'  'wavevector'  'eigenvalue'};
+ out{iN}.momentum_fluxes_rotating.phi_potential=zeros(nsp,length(II),1);
+ out{iN}.momentum_fluxes_rotating.a_parallel=zeros(nsp,length(II),1);
+ out{iN}.momentum_fluxes_rotating.b_field_parallel=zeros(nsp,length(II),1);
+ out{iN}.momentum_fluxes_rotating.axes={'species' 'wavevector'  'eigenvalue'};
 
- out{iN}.heat_fluxes_lab.phi_potential=zeros(nsp,1,length(II));
- out{iN}.heat_fluxes_lab.a_parallel=zeros(nsp,1,length(II));
- out{iN}.heat_fluxes_lab.b_field_parallel=zeros(nsp,1,length(II));
- out{iN}.heat_fluxes_lab.axes={'species'  'eigenvalue' 'wavevector'};
- out{iN}.heat_fluxes_rotating.phi_potential=zeros(nsp,1,length(II));
- out{iN}.heat_fluxes_rotating.a_parallel=zeros(nsp,1,length(II));
- out{iN}.heat_fluxes_rotating.b_field_parallel=zeros(nsp,1,length(II));
- out{iN}.heat_fluxes_rotating.axes={'species'  'eigenvalue' 'wavevector'};
+ out{iN}.heat_fluxes_lab.phi_potential=zeros(nsp,length(II),1);
+ out{iN}.heat_fluxes_lab.a_parallel=zeros(nsp,length(II),1);
+ out{iN}.heat_fluxes_lab.b_field_parallel=zeros(nsp,length(II),1);
+ out{iN}.heat_fluxes_lab.axes={'species'  'wavevector'  'eigenvalue'};
+ out{iN}.heat_fluxes_rotating.phi_potential=zeros(nsp,length(II),1);
+ out{iN}.heat_fluxes_rotating.a_parallel=zeros(nsp,length(II),1);
+ out{iN}.heat_fluxes_rotating.b_field_parallel=zeros(nsp,length(II),1);
+ out{iN}.heat_fluxes_rotating.axes={'species'  'wavevector'  'eigenvalue'};
 
  gkdb_moments_names={'density','parallel_velocity','perpendicular_temperature','parallel_temperature','j0_density','j0_parallel_velocity','j0_perpendicular_temperature','j0_parallel_temperature'};
  for mm=1:length(gkdb_moments_names) 
-  out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])=zeros(Ggeom{II(1)}.ns,nsp,1,length(II));
-  out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])=zeros(Ggeom{II(1)}.ns,nsp,1,length(II));
+  out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])=zeros(Ggeom{II(1)}.ns,nsp,length(II),1);
+  out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])=zeros(Ggeom{II(1)}.ns,nsp,length(II),1);
  end
- out{iN}.moments_rotating.axes={'poloidal_angle'  'species'  'eigenvalue'  'wavevector'};
+ out{iN}.moments_rotating.axes={'poloidal_angle'  'species'  'wavevector'  'eigenvalue'};
 
  for jN=1:length(II)  % loop over wavevectors
    ii=II(jN);
@@ -572,8 +572,8 @@ for iN=1:Nout % loop over output files
     frewind(fid);
     dum_im=fread(fid,'double');
     fclose(fid);
-    out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])(:,jj,kk,jN) = dum_re.*moments_normfac(mm);
-    out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])(:,jj,kk,jN) = dum_im.*moments_normfac(mm);
+    out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])(:,jj,jN,kk) = dum_re.*moments_normfac(mm);
+    out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])(:,jj,jN,kk) = dum_im.*moments_normfac(mm);
    end
   end
  end 
@@ -592,43 +592,43 @@ for iN=1:Nout % loop over output files
 
    dims_fl = size(pflux.es); 
    dum=reshape(pflux.es,[],dims_fl(end));
-   out{iN}.particle_fluxes.phi_potential(jj,kk,jN) = dum(ii,jj).*pflux_norm_base.*pflux_norm_sp;
+   out{iN}.particle_fluxes.phi_potential(jj,jN,kk) = dum(ii,jj).*pflux_norm_base.*pflux_norm_sp;
    dum=reshape(pflux.em,[],dims_fl(end));
-   out{iN}.particle_fluxes.a_parallel(jj,kk,jN) = dum(ii,jj).*pflux_norm_base.*pflux_norm_sp;
+   out{iN}.particle_fluxes.a_parallel(jj,jN,kk) = dum(ii,jj).*pflux_norm_base.*pflux_norm_sp;
    dum=reshape(pflux.bpar,[],dims_fl(end));
-   out{iN}.particle_fluxes.b_field_parallel(jj,kk,jN) = dum(ii,jj).*pflux_norm_base.*pflux_norm_sp;
+   out{iN}.particle_fluxes.b_field_parallel(jj,jN,kk) = dum(ii,jj).*pflux_norm_base.*pflux_norm_sp;
 
    dims_fl = size(vflux.eslab); 
    dum=reshape(vflux.eslab,[],dims_fl(end));
-   out{iN}.momentum_fluxes_lab.phi_potential(jj,kk,jN) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
+   out{iN}.momentum_fluxes_lab.phi_potential(jj,jN,kk) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
    dum=reshape(vflux.emlab,[],dims_fl(end));
-   out{iN}.momentum_fluxes_lab.a_parallel(jj,kk,jN) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
+   out{iN}.momentum_fluxes_lab.a_parallel(jj,jN,kk) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
    dum=reshape(vflux.bparlab,[],dims_fl(end));
-   out{iN}.momentum_fluxes_lab.b_field_parallel(jj,kk,jN) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
+   out{iN}.momentum_fluxes_lab.b_field_parallel(jj,jN,kk) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
 
    dims_fl = size(vflux.es); 
    dum=reshape(vflux.es,[],dims_fl(end));
-   out{iN}.momentum_fluxes_rotating.phi_potential(jj,kk,jN) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
+   out{iN}.momentum_fluxes_rotating.phi_potential(jj,jN,kk) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
    dum=reshape(vflux.em,[],dims_fl(end));
-   out{iN}.momentum_fluxes_rotating.a_parallel(jj,kk,jN) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
+   out{iN}.momentum_fluxes_rotating.a_parallel(jj,jN,kk) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
    dum=reshape(vflux.bpar,[],dims_fl(end));
-   out{iN}.momentum_fluxes_rotating.b_field_parallel(jj,kk,jN) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
+   out{iN}.momentum_fluxes_rotating.b_field_parallel(jj,jN,kk) = dum(ii,jj).*vflux_norm_base.*vflux_norm_sp;
 
    dims_fl = size(eflux.eslab); 
    dum=reshape(eflux.eslab,[],dims_fl(end));
-   out{iN}.heat_fluxes_lab.phi_potential(jj,kk,jN) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
+   out{iN}.heat_fluxes_lab.phi_potential(jj,jN,kk) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
    dum=reshape(eflux.emlab,[],dims_fl(end));
-   out{iN}.heat_fluxes_lab.a_parallel(jj,kk,jN) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
+   out{iN}.heat_fluxes_lab.a_parallel(jj,jN,kk) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
    dum=reshape(eflux.bparlab,[],dims_fl(end));
-   out{iN}.heat_fluxes_lab.b_field_parallel(jj,kk,jN) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
+   out{iN}.heat_fluxes_lab.b_field_parallel(jj,jN,kk) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
 
    dims_fl = size(eflux.es); 
    dum=reshape(eflux.es,[],dims_fl(end));
-   out{iN}.heat_fluxes_rotating.phi_potential(jj,kk,jN) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
+   out{iN}.heat_fluxes_rotating.phi_potential(jj,jN,kk) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
    dum=reshape(eflux.em,[],dims_fl(end));
-   out{iN}.heat_fluxes_rotating.a_parallel(jj,kk,jN) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
+   out{iN}.heat_fluxes_rotating.a_parallel(jj,jN,kk) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
    dum=reshape(eflux.bpar,[],dims_fl(end));
-   out{iN}.heat_fluxes_rotating.b_field_parallel(jj,kk,jN) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
+   out{iN}.heat_fluxes_rotating.b_field_parallel(jj,jN,kk) = dum(ii,jj).*eflux_norm_base.*eflux_norm_sp;
 
   end
  end
@@ -639,7 +639,7 @@ for iN=1:Nout % loop over output files
 
  
  out{iN}.point.creator='Camenen';
- out{iN}.point.comment=['flnm=' flist{ii} ', proj=' proj char(10) comments];
+ out{iN}.point.comment=['scan=' flnm ', proj=' proj char(10) comments];
 
  out{iN}.code.name='GKW';
  out{iN}.code.parameters='';
@@ -677,29 +677,29 @@ end % loop on output files
 for iN=1:Nout % loop over output files
  II=find(ii_out==iN);
  Iwok=find(is_ok(II));
- out{iN}.particle_fluxes.phi_potential=out{iN}.particle_fluxes.phi_potential(:,:,Iwok);
- out{iN}.particle_fluxes.a_parallel=out{iN}.particle_fluxes.a_parallel(:,:,Iwok);
- out{iN}.particle_fluxes.b_field_parallel=out{iN}.particle_fluxes.b_field_parallel(:,:,Iwok);
+ out{iN}.particle_fluxes.phi_potential=out{iN}.particle_fluxes.phi_potential(:,Iwok,:);
+ out{iN}.particle_fluxes.a_parallel=out{iN}.particle_fluxes.a_parallel(:,Iwok,:);
+ out{iN}.particle_fluxes.b_field_parallel=out{iN}.particle_fluxes.b_field_parallel(:,Iwok,:);
 
- out{iN}.momentum_fluxes_lab.phi_potential=out{iN}.momentum_fluxes_lab.phi_potential(:,:,Iwok);
- out{iN}.momentum_fluxes_lab.a_parallel=out{iN}.momentum_fluxes_lab.a_parallel(:,:,Iwok);
- out{iN}.momentum_fluxes_lab.b_field_parallel=out{iN}.momentum_fluxes_lab.b_field_parallel(:,:,Iwok);
+ out{iN}.momentum_fluxes_lab.phi_potential=out{iN}.momentum_fluxes_lab.phi_potential(:,Iwok,:);
+ out{iN}.momentum_fluxes_lab.a_parallel=out{iN}.momentum_fluxes_lab.a_parallel(:,Iwok,:);
+ out{iN}.momentum_fluxes_lab.b_field_parallel=out{iN}.momentum_fluxes_lab.b_field_parallel(:,Iwok,:);
 
- out{iN}.momentum_fluxes_rotating.phi_potential=out{iN}.momentum_fluxes_rotating.phi_potential(:,:,Iwok);
- out{iN}.momentum_fluxes_rotating.a_parallel=out{iN}.momentum_fluxes_rotating.a_parallel(:,:,Iwok);
- out{iN}.momentum_fluxes_rotating.b_field_parallel=out{iN}.momentum_fluxes_rotating.b_field_parallel(:,:,Iwok);
+ out{iN}.momentum_fluxes_rotating.phi_potential=out{iN}.momentum_fluxes_rotating.phi_potential(:,Iwok,:);
+ out{iN}.momentum_fluxes_rotating.a_parallel=out{iN}.momentum_fluxes_rotating.a_parallel(:,Iwok,:);
+ out{iN}.momentum_fluxes_rotating.b_field_parallel=out{iN}.momentum_fluxes_rotating.b_field_parallel(:,Iwok,:);
 
- out{iN}.heat_fluxes_lab.phi_potential=out{iN}.heat_fluxes_lab.phi_potential(:,:,Iwok);
- out{iN}.heat_fluxes_lab.a_parallel=out{iN}.heat_fluxes_lab.a_parallel(:,:,Iwok);
- out{iN}.heat_fluxes_lab.b_field_parallel=out{iN}.heat_fluxes_lab.b_field_parallel(:,:,Iwok);
+ out{iN}.heat_fluxes_lab.phi_potential=out{iN}.heat_fluxes_lab.phi_potential(:,Iwok,:);
+ out{iN}.heat_fluxes_lab.a_parallel=out{iN}.heat_fluxes_lab.a_parallel(:,Iwok,:);
+ out{iN}.heat_fluxes_lab.b_field_parallel=out{iN}.heat_fluxes_lab.b_field_parallel(:,Iwok,:);
 
- out{iN}.heat_fluxes_rotating.phi_potential=out{iN}.heat_fluxes_rotating.phi_potential(:,:,Iwok);
- out{iN}.heat_fluxes_rotating.a_parallel=out{iN}.heat_fluxes_rotating.a_parallel(:,:,Iwok);
- out{iN}.heat_fluxes_rotating.b_field_parallel=out{iN}.heat_fluxes_rotating.b_field_parallel(:,:,Iwok);
+ out{iN}.heat_fluxes_rotating.phi_potential=out{iN}.heat_fluxes_rotating.phi_potential(:,Iwok,:);
+ out{iN}.heat_fluxes_rotating.a_parallel=out{iN}.heat_fluxes_rotating.a_parallel(:,Iwok,:);
+ out{iN}.heat_fluxes_rotating.b_field_parallel=out{iN}.heat_fluxes_rotating.b_field_parallel(:,Iwok,:);
 
  for mm=1:length(gkdb_moments_names) 
-  out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])(:,:,:,Iwok);
-  out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])(:,:,:,Iwok);
+  out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])(:,:,Iwok,:);
+  out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])(:,:,Iwok,:);
  end
 
  dum={out{iN}.wavevectors{Iwok}};

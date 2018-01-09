@@ -19,6 +19,12 @@ field_names=fieldnames(data);
 str=[repmat(indent,1,n_indent) '{' nl];
 n_indent = n_indent+1;
 
+if any(contains(field_names,'axes')) % need to find out manually the number of dimensions as matlab ignores the last dimension is one
+ nb_dims=length(data.axes);
+else 
+ nb_dims=[];
+end
+
 for ii=1:length(field_names)
  str=[str repmat(indent,1,n_indent) '"' field_names{ii} '": '];
  sub_data=getfield(data,field_names{ii});
@@ -55,7 +61,7 @@ for ii=1:length(field_names)
      if prod(S)==1  % no brackets for single elements
        str=[str sprintf('%0.8g',sub_data)];
      else
-       str = [str writenumeric(sub_data)];
+       str = [str writenumeric(sub_data,nb_dims)];
      end
    elseif islogical(sub_data)
      if sub_data==1  
@@ -83,12 +89,20 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 
-function  str_out = writenumeric(array)
+function  str_out = writenumeric(array,nb_dims)
 
 
 str_out='';
 S=size(array);
-if length(S)==2 & S(2)==1 
+if isempty(nb_dims)
+ nb_dims=length(S);
+ if length(S)==2 & S(2)==1
+  nb_dims=1;
+ end
+end
+
+%if length(S)==2 & S(2)==1 
+if nb_dims==1
   str_out=['[' sprintf('%0.8g',array(1))];
   for ii=2:S(1)
     str_out=[str_out ',' sprintf('%0.8g',array(ii))];
@@ -97,13 +111,13 @@ if length(S)==2 & S(2)==1
 else
   str_out = '['; 
   for ii=1:S(1)
-    switch length(S)
+    switch nb_dims
     case 2
-      str_out=[str_out writenumeric(shiftdim(array(ii,:),1))];
+      str_out=[str_out writenumeric(shiftdim(array(ii,:),1),nb_dims-1)];
     case 3 
-      str_out=[str_out writenumeric(shiftdim(array(ii,:,:),1))];
+      str_out=[str_out writenumeric(shiftdim(array(ii,:,:),1),nb_dims-1)];
     case 4
-      str_out=[str_out writenumeric(shiftdim(array(ii,:,:,:),1))];
+      str_out=[str_out writenumeric(shiftdim(array(ii,:,:,:),1),nb_dims-1)];
     otherwise
      disp('Arrays with more than 5 dims not implemented')
     end
