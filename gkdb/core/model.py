@@ -39,6 +39,10 @@ except OperationalError:
         import getpass
         p = getpass.getpass()
         db = PostgresqlExtDatabase(database=DATABASE, host=HOST, user=u, password=p)
+    else:
+        db.close()
+else:
+    db.close()
 
 try:
     db.connect()
