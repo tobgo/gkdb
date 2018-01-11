@@ -12,6 +12,7 @@ import json
 import datetime
 import pandas as pd
 from os import environ
+from playhouse.db_url import connect
 
 try:
     HOST = environ['PGHOST'] or 'gkdb.org'
@@ -23,6 +24,25 @@ except KeyError:
     DATABASE = 'gkdb'
 
 db = PostgresqlExtDatabase(database=DATABASE, host=HOST)
+try:
+    db.connect()
+except OperationalError:
+    u = input("username? ")
+    db = PostgresqlExtDatabase(database=DATABASE, host=HOST, user=u)
+    try:
+        db.connect()
+    except OperationalError:
+        import getpass
+        p = getpass.getpass()
+        db = PostgresqlExtDatabase(database=DATABASE, host=HOST, user=u, password=p)
+
+try:
+    db.connect()
+except OperationalError:
+    raise Exception('Could not connect to database')
+else:
+    db.close()
+
 class BaseModel(Model):
     """A base model that will use our Postgresql database"""
     class Meta:
@@ -358,3 +378,6 @@ def purge_tables():
                 db.rollback()
     db.execute_sql('SET ROLE developer')
     db.create_tables([Tag, Point_Tag, Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating, Species_Global])
+
+if __name__ == '__main__':
+    embed()
