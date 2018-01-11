@@ -1,8 +1,12 @@
+import sys
+from IPython import embed
+if sys.version_info < (3, 0):
+    print('Python 2')
+    input = raw_input
 from peewee import *
 from peewee import FloatField, FloatField, ProgrammingError
 import numpy as np
 import inspect
-import sys
 from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField
 from playhouse.shortcuts import model_to_dict, dict_to_model
 from IPython import embed
