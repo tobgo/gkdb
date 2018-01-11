@@ -372,6 +372,10 @@ for iN=1:Nout % loop over output files
 
  end
 
+ %%% Debye length %%
+
+ out{iN}.species_global.debye_length = 0; % not taken into account in GKW
+
  %%% EM effects %%%
 
  out{iN}.code.include_a_parallel = (G{ii}.CONTROL.nlapar);
