@@ -299,7 +299,7 @@ include\_b\_field\_parallel & 0 or 1 & Logical & 1 \\
 \hline
 \end{tabularx}
 
-\section{Collisions}
+\section{Collisions and Debye length}
 \subsection{Plasma collisionality}
 The normalised collision frequency
 \begin{equation}
@@ -318,6 +318,13 @@ is used to specify the plasmas collisionality, with $R_\tref$ in $[\textrm{m}]$,
 \end{itemize}
 Note that the implementation of collisions is highly code dependent and the list above does not give a complete characterisation of how collisions were treated in the run. However, this information can be retrieved from the specific code input file used for the run, which is also stored in the database, and the code documentation,\\
 
+\subsection{Debye length}
+The Debye length
+\begin{equation}
+ \lambda_{D}= \sqrt{\frac{\epsilon_0 T_\tref}{n_\tref q_\tref^2}}
+\end{equation}
+enters the linearized quasi-neutrality equation. When neglected, this term is set to zero.
+
 \subsection{Summary of the collision parameters}
 \begin{tabularx}{\textwidth}{|L|S|S|S|}
 \hline
@@ -330,6 +337,7 @@ collision\_ei\_only & 0 or 1 & Logical & 1 \\
 collision\_momentum\_conservation\_flag & 0 or 1 & Logical & 1 \\
 collision\_energy\_conservation\_flag & 0 or 1 & Logical & 1 \\
 collision\_finite\_larmor\_radius & 0 or 1 & Logical & 1 \\
+debye\_length & $\geq 0$ & Real & 1 \\
 \hline
 \end{tabularx}
 
