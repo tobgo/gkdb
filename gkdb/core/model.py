@@ -1,8 +1,12 @@
+import sys
+from IPython import embed
+if sys.version_info < (3, 0):
+    print('Python 2')
+    input = raw_input
 from peewee import *
 from peewee import FloatField, FloatField, ProgrammingError
 import numpy as np
 import inspect
-import sys
 from playhouse.postgres_ext import PostgresqlExtDatabase, ArrayField, BinaryJSONField
 from playhouse.shortcuts import model_to_dict, dict_to_model
 from IPython import embed
@@ -12,6 +16,7 @@ import json
 import datetime
 import pandas as pd
 from os import environ
+from playhouse.db_url import connect
 
 try:
     HOST = environ['PGHOST'] or 'gkdb.org'
@@ -23,6 +28,29 @@ except KeyError:
     DATABASE = 'gkdb'
 
 db = PostgresqlExtDatabase(database=DATABASE, host=HOST)
+try:
+    db.connect()
+except OperationalError:
+    u = input("username? ")
+    db = PostgresqlExtDatabase(database=DATABASE, host=HOST, user=u)
+    try:
+        db.connect()
+    except OperationalError:
+        import getpass
+        p = getpass.getpass()
+        db = PostgresqlExtDatabase(database=DATABASE, host=HOST, user=u, password=p)
+    else:
+        db.close()
+else:
+    db.close()
+
+try:
+    db.connect()
+except OperationalError:
+    raise Exception('Could not connect to database')
+else:
+    db.close()
+
 class BaseModel(Model):
     """A base model that will use our Postgresql database"""
     class Meta:
@@ -358,3 +386,6 @@ def purge_tables():
                 db.rollback()
     db.execute_sql('SET ROLE developer')
     db.create_tables([Tag, Point_Tag, Point, Code, Flux_Surface, Wavevector, Eigenvalue, Eigenvector, Species, Heat_Fluxes_Lab, Momentum_Fluxes_Lab, Heat_Fluxes_Rotating, Momentum_Fluxes_Rotating, Particle_Fluxes, Moments_Rotating, Species_Global])
+
+if __name__ == '__main__':
+    embed()
