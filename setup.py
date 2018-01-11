@@ -51,7 +51,7 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     packages = find_packages(exclude=['docs', 'tests*']),
-    install_requires = ['peewee', 'numpy', 'scipy', 'IPython'],
+    install_requires = ['peewee', 'numpy', 'scipy', 'IPython', 'psycopg2', 'pandas'],
     extras_require = {
         'test': ['coverage', 'pytest', 'pytest-cov'],
     },
