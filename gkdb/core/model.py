@@ -262,6 +262,7 @@ class Species_Global(BaseModel):
     collisionality = FloatField(help_text='Plasma collision frequency')
     collision_enhancement_factor = FloatField(help_text='Enhancement factor for the collisions of electrons on main ions (to mimic the impact of impurity ions not present in the run)')
     toroidal_velocity = FloatField(help_text='Toroidal velocity (common to all species)')
+    debye_length = FloatField(help_text='Debye length')
     # Derived from Species
     zeff = FloatField(null=True)
     class Meta:
