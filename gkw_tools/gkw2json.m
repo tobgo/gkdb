@@ -445,10 +445,12 @@ for iN=1:Nout % loop over output files
  dum=load([gkwpath('time',proj) flist{ii}]);
  t=dum(:,1);
  g=dum(:,2);
- Delta_t=1./gamma(ii);
+ Delta_t=3./gamma(ii);
  I=iround(t,t(end)-Delta_t);
- out{iN}.wavevectors{jN}.eigenvalues{kk}.growth_rate_tolerance=1-sqrt(trapz(t(I:end),g(I:end).^2)./Delta_t)./gamma(ii);
-
+ out{iN}.wavevectors{jN}.eigenvalues{kk}.growth_rate_tolerance=sqrt(trapz(t(I:end),(g(I:end)-gamma(ii)).^2)./Delta_t)./gamma(ii);
+ if out{iN}.wavevectors{jN}.eigenvalues{kk}.growth_rate_tolerance==0
+  out{iN}.wavevectors{jN}.eigenvalues{kk}.growth_rate_tolerance=1e-6;
+ end
  %%% eigenfunctions %%%
  n_turn = 2*G{ii}.GRIDSIZE.nperiod-1;
  ns_per_turn = G{ii}.GRIDSIZE.n_s_grid ./ n_turn;
