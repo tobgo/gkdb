@@ -413,8 +413,8 @@ The normalisations of the mode growth rate $\gamma$ and frequency $\omega_r$ are
 By convention, unstable modes have a positive growth rate and modes propagating in the ion diamagnetic drift direction have a positive frequency (and therefore a negative frequency when they are propagating in the electron diamagnetic drift direction).\\
 
 For initial value runs, the following (post-processing) method is used to determine the tolerance on the run convergence:
-$$\gamma_\textrm{tol} = 1-\frac{1}{\gamma_f}\sqrt{\frac{1}{\Delta t}\int_{t_f-\Delta t}^{t_f} \gamma^2(t)\,\textrm{dt}}$$
-where $t_f$ and $\gamma_f$ are the time and growth rate at the end of the simulation, respectively, $\Delta t = 1/\gamma_f$ and
+$$\gamma_\textrm{tol} = \frac{1}{\gamma_f}\sqrt{\frac{1}{\Delta t}\int_{t_f-\Delta t}^{t_f} \left[\gamma(t)-\gamma_f\right]^2\,\textrm{dt}}$$
+where $t_f$ and $\gamma_f$ are the time and growth rate at the end of the simulation, respectively, $\Delta t = 3/\gamma_f$ and
 $$\gamma(t)=\frac{1}{\delta t}[\ln{A_f(t)}-\ln{A_f(t-\delta t)}]$$
 with $\delta t$ depending on the code setup but in any case several times smaller than $\Delta t$. Note that any exponentially growing quantity can be used in place of $A_f$ to compute the time dependent growth rate.
 
