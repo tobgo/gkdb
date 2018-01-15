@@ -62,6 +62,21 @@ class Tag(BaseModel):
     doi =     TextField(null=True)
     comment = TextField(null=True)
 
+    @classmethod
+    def from_pointlist(cls, pointlist, name=None, doi=None, comment=None):
+        pointset = set(pointlist)
+        lst = []
+        tag = Tag(name=name, doi=doi, comment=comment)
+        tag.save()
+        for pp in Point.select().where(Point.id << pointlist):
+            pt = Point_Tag(point=pp.id, tag=tag.id)
+            pt.save()
+            pointset.remove(pp.id)
+            print(pointset)
+
+        if len(pointset) != 0:
+            print('Failed to add points {!s}'.format(pointset))
+
 class Point(BaseModel):
     creator = TextField(help_text='Name of the creator of this entry')
     date = DateTimeField(help_text='Creation date of this entry')
@@ -107,8 +122,6 @@ class Point(BaseModel):
                     model_to_dict(eigenvalue.eigenvector.get(),
                                   recurse=False,
                                   exclude=[Eigenvector.eigenvalue_id]))
-
-
 
         for flux_table in [Particle_Fluxes, Heat_Fluxes_Lab, Heat_Fluxes_Rotating,
                            Momentum_Fluxes_Lab, Momentum_Fluxes_Rotating]:
