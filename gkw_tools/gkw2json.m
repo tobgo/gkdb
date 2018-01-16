@@ -262,7 +262,7 @@ for iN=1:Nout % loop over output files
   ok_msg{ii}='No electron species found';
   continue
  end  
- if length(Iele)>2
+ if length(Iele)>1
   is_ok(ii)=0;
   ok_msg{ii}='Runs with multiple electron species not handled yet';
   continue
@@ -683,40 +683,46 @@ end % loop on output files
 for iN=1:Nout % loop over output files
  II=find(ii_out==iN);
  Iwok=find(is_ok(II));
- out{iN}.particle_fluxes.phi_potential=out{iN}.particle_fluxes.phi_potential(:,Iwok,:);
- out{iN}.particle_fluxes.a_parallel=out{iN}.particle_fluxes.a_parallel(:,Iwok,:);
- out{iN}.particle_fluxes.b_field_parallel=out{iN}.particle_fluxes.b_field_parallel(:,Iwok,:);
+ if isempty(Iwok)
+   out{iN}=[];
+ else
+   out{iN}.particle_fluxes.phi_potential=out{iN}.particle_fluxes.phi_potential(:,Iwok,:);
+   out{iN}.particle_fluxes.a_parallel=out{iN}.particle_fluxes.a_parallel(:,Iwok,:);
+   out{iN}.particle_fluxes.b_field_parallel=out{iN}.particle_fluxes.b_field_parallel(:,Iwok,:);
 
- out{iN}.momentum_fluxes_lab.phi_potential=out{iN}.momentum_fluxes_lab.phi_potential(:,Iwok,:);
- out{iN}.momentum_fluxes_lab.a_parallel=out{iN}.momentum_fluxes_lab.a_parallel(:,Iwok,:);
- out{iN}.momentum_fluxes_lab.b_field_parallel=out{iN}.momentum_fluxes_lab.b_field_parallel(:,Iwok,:);
+   out{iN}.momentum_fluxes_lab.phi_potential=out{iN}.momentum_fluxes_lab.phi_potential(:,Iwok,:);
+   out{iN}.momentum_fluxes_lab.a_parallel=out{iN}.momentum_fluxes_lab.a_parallel(:,Iwok,:);
+   out{iN}.momentum_fluxes_lab.b_field_parallel=out{iN}.momentum_fluxes_lab.b_field_parallel(:,Iwok,:);
 
- out{iN}.momentum_fluxes_rotating.phi_potential=out{iN}.momentum_fluxes_rotating.phi_potential(:,Iwok,:);
- out{iN}.momentum_fluxes_rotating.a_parallel=out{iN}.momentum_fluxes_rotating.a_parallel(:,Iwok,:);
- out{iN}.momentum_fluxes_rotating.b_field_parallel=out{iN}.momentum_fluxes_rotating.b_field_parallel(:,Iwok,:);
+   out{iN}.momentum_fluxes_rotating.phi_potential=out{iN}.momentum_fluxes_rotating.phi_potential(:,Iwok,:);
+   out{iN}.momentum_fluxes_rotating.a_parallel=out{iN}.momentum_fluxes_rotating.a_parallel(:,Iwok,:);
+   out{iN}.momentum_fluxes_rotating.b_field_parallel=out{iN}.momentum_fluxes_rotating.b_field_parallel(:,Iwok,:);
 
- out{iN}.heat_fluxes_lab.phi_potential=out{iN}.heat_fluxes_lab.phi_potential(:,Iwok,:);
- out{iN}.heat_fluxes_lab.a_parallel=out{iN}.heat_fluxes_lab.a_parallel(:,Iwok,:);
- out{iN}.heat_fluxes_lab.b_field_parallel=out{iN}.heat_fluxes_lab.b_field_parallel(:,Iwok,:);
+   out{iN}.heat_fluxes_lab.phi_potential=out{iN}.heat_fluxes_lab.phi_potential(:,Iwok,:);
+   out{iN}.heat_fluxes_lab.a_parallel=out{iN}.heat_fluxes_lab.a_parallel(:,Iwok,:);
+   out{iN}.heat_fluxes_lab.b_field_parallel=out{iN}.heat_fluxes_lab.b_field_parallel(:,Iwok,:);
 
- out{iN}.heat_fluxes_rotating.phi_potential=out{iN}.heat_fluxes_rotating.phi_potential(:,Iwok,:);
- out{iN}.heat_fluxes_rotating.a_parallel=out{iN}.heat_fluxes_rotating.a_parallel(:,Iwok,:);
- out{iN}.heat_fluxes_rotating.b_field_parallel=out{iN}.heat_fluxes_rotating.b_field_parallel(:,Iwok,:);
+   out{iN}.heat_fluxes_rotating.phi_potential=out{iN}.heat_fluxes_rotating.phi_potential(:,Iwok,:);
+   out{iN}.heat_fluxes_rotating.a_parallel=out{iN}.heat_fluxes_rotating.a_parallel(:,Iwok,:);
+   out{iN}.heat_fluxes_rotating.b_field_parallel=out{iN}.heat_fluxes_rotating.b_field_parallel(:,Iwok,:);
 
- for mm=1:length(gkdb_moments_names) 
-  out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])(:,:,Iwok,:);
-  out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])(:,:,Iwok,:);
+   for mm=1:length(gkdb_moments_names) 
+    out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['r_' gkdb_moments_names{mm}])(:,:,Iwok,:);
+    out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}]) = out{iN}.moments_rotating.(['i_' gkdb_moments_names{mm}])(:,:,Iwok,:);
+   end
+
+   dum={out{iN}.wavevectors{Iwok}};
+   out{iN}=rmfield(out{iN},'wavevectors');
+   out{iN}.wavevectors=dum;
  end
-
- dum={out{iN}.wavevectors{Iwok}};
- out{iN}=rmfield(out{iN},'wavevectors');
- out{iN}.wavevectors=dum;
 end
 
 % order fields
 top_fields_order={'point','code','flux_surface','species','species_global','wavevectors','particle_fluxes','momentum_fluxes_lab','momentum_fluxes_rotating','heat_fluxes_lab','heat_fluxes_rotating','moments_rotating'};
 for iN=1:Nout % loop over output files
-  out{iN}=orderfields(out{iN},top_fields_order);
+  if ~isempty(out{iN})
+    out{iN}=orderfields(out{iN},top_fields_order);
+  end
 end
 
 %%%%%%%%%%%%%%%%%%
