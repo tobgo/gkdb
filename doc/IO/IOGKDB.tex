@@ -605,8 +605,7 @@ with $s_i$ the duplicated species entries for species $s$, identified by their c
 \item For initial value runs, $N_\textrm{modes}=1$.
 \item The poloidal angle array must range from $-N_p \pi$ to $N_p \pi$, with $N_p$ the number of poloidal turns.
 \item The arrays containing the parallel structure of the fields are of size $N_\textrm{pol grid}\times N_\textrm{modes}$ with $N_\textrm{pol grid}$ the length of the poloidal angle array.
-\item The fields have been rotated in the complex plane so that $\textrm{Im}\left[\phi_{Nf}(\theta=0)\right]=0$.
-
+\item The fields have been rotated in the complex plane so that $\textrm{Im}\left[\phi_{Nf}(\theta=0)\right]=0$. Note that the $\phi_{Nf}$ array does not necessarily have a point at $\theta=0$. In that case, the condition above is checked by interpolating $\phi_{Nf}$ at $\theta=0$.
 \item The array containing the fluxes are of size $N_\textrm{species}\times N_\textrm{modes}$, i.e. one flux value is given per species and per mode (there may be several mode per wavevector when an eigenvalue solver is used).
 \item Laboratory frame AND rotating frame fluxes are given in input.
 \end{itemize}
