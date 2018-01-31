@@ -58,7 +58,7 @@ if ~(unix(['test -e ' flpth_json])==0)
  return
 end
 
-err_th=0.003;
+err_th=0.003; % threshold for shape parametrisation accuracy (if the threshold is exceeded, the parametrisation is not accurate enough)
 
 % load scan data
 [vars,gamma,freq,pflux,eflux,vflux,s,phi,apar,G,flist,nt,bpar,Ggeom,kperp2av,kperp2av_all,Rk_av,Rk2_av,filters]=read_gkwscan(flnm,proj);
@@ -109,7 +109,7 @@ out=[];
 for iN=1:Nout % loop over output files
 
  II=find(ii_out==iN);
- nsp = G{ii}.GRIDSIZE.number_of_species; % number of kinetic species
+ nsp = G{II(1)}.GRIDSIZE.number_of_species; % number of kinetic species
  
  % initialise arrays for fluxes and moments (with 1 eigenvalue only)
  out{iN}.particle_fluxes.phi_potential=zeros(nsp,length(II),1);
@@ -648,7 +648,17 @@ for iN=1:Nout % loop over output files
  out{iN}.point.comment=['scan=' flnm ', proj=' proj '\n' comments];
 
  out{iN}.code.name='GKW';
- out{iN}.code.parameters='';
+ 
+ namelist_names=fieldnames(G{ii});
+ for aa=1:length(namelist_names)
+   if isstruct(G{ii}.(namelist_names{aa})) 
+     variable_names=fieldnames(G{ii}.(namelist_names{aa}));
+     for bb=1:length(variable_names)
+       out{iN}.code.parameters.(variable_names{bb})=G{ii}.(namelist_names{aa}).(variable_names{bb});
+     end
+   end
+ end
+
  if isempty(G{ii}.version)
   is_ok(ii)=0;
   ok_msg{ii}='Code version not known';
