@@ -54,19 +54,33 @@ For \texttt{chease} geometry, $R_0$ is taken to be the value of \texttt{R0EXP} s
 \begin{equation}
 R_0^\texttt{GKW-chease} = \texttt{R0EXP} \qquad \qquad Z_0^\texttt{GKW-chease} = Z_\textrm{axis}
 \end{equation}
-The definition of the (unnormalised) radial coordinate $r$ is identical in GKW and the GKDB:
+The definition of the (dimensional) radial coordinate $r$ is identical in GKW and the GKDB:
 \begin{equation}
 r^\gkw = r^\gkdb
 \end{equation}
-The calculation of the GKDB poloidal angle $\theta$ from GKW inputs is documented in section~\ref{sec:magequil}. At this stage, just notice that as  $Z_0^\gkw\neq Z_0^\gkdb$ the points $s=0$ and $\theta=0$ do not  coincide. 
+The calculation of the  poloidal angle $\theta$ used in the GKDB from GKW inputs is documented in section~\ref{sec:magequil}. At this stage, just notice that most of the time $Z_0^\gkw\neq Z_0^\gkdb$, therefore, the points $s=0$ and $\theta=0$ do not necessarily coincide. 
 
 
 \section{Reference quantities}
-
+The conversion from GKW to GKDB requires to know the ratio of the reference quantities used in both formats.  These ratio are:
+\begin{align*}
+q_\textrm{rat} &=  \frac{q_\tref^\gkw}{q_\tref^\gkdb} = - \frac{1}{\texttt{z}^\gkw_{e^-}} & L_\textrm{rat}^\texttt{miller} &= \frac{R_\tref^\texttt{GKW-miller}}{R_\tref^\gkdb} = 1 \\
+m_\textrm{rat} &=  \frac{m_\tref^\gkw}{m_\tref^\gkdb} = \frac{m_e}{m_D}\frac{1}{\texttt{mass}^\gkw_{e^-}} & B_\textrm{rat}^\texttt{miller} &= \frac{B_\tref^\texttt{GKW-miller}}{B_\tref^\gkdb} = 1 \\
+T_\textrm{rat} &=  \frac{T_\tref^\gkw}{T_\tref^\gkdb} = \frac{1}{\texttt{temp}^\gkw_{e^-}} &L_\textrm{rat}^\texttt{chease} &= \frac{R_\tref^\texttt{GKW-chease}}{R_\tref^\gkdb} = \frac{\texttt{R0EXP}}{R_0^\gkdb}  \\
+n_\textrm{rat} &=  \frac{n_\tref^\gkw}{n_\tref^\gkdb} = \frac{1}{\texttt{dens}^\gkw_{e^-}} \frac{n_e(s=0)}{n_e(\theta=0)} & B_\textrm{rat}^\texttt{chease} &= \frac{B_\tref^\texttt{GKW-chease}}{B_\tref^\gkdb} = \frac{\texttt{B0EXP}}{B_0^\gkdb}
+\end{align*}
+The $e^-$ subscript denotes the electron species and the electron to deuterium mass ratio is taken to be $\frac{m_e}{m_D}=2.7237 \times 10^{-4}$ in the GKDB.\\
+The poloidal asymmetry factor for the density can be computed from data in the \texttt{cfdens} file.\\
+ With \texttt{chease} geometry, the ratios $ L_\textrm{rat}$ and $ B_\textrm{rat}$ can be computed from data in the \texttt{hamada.dat} file.
 
 \chapter{Inputs}
 \section{Magnetic equilibrium} \label{sec:magequil}
-Only \texttt{miller} and \texttt{chease} magnetic equilibrium specifications are compatible with the GKDB format. 
+\subsection{Plasma shape}
+Let's call $\{R_{\Psi_0},Z_{\Psi_0}\}$ a set of points describing the flux surface of interest. 
+Only \texttt{miller} and \texttt{chease} magnetic equilibrium specifications are compatible with the GKDB format.  
+
+\subsection{Poloidal angle}
+
 
 
 \chapter{Outputs}
