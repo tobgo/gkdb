@@ -206,7 +206,7 @@ is not allowed in the database as it is inconsistent with the use of a finite pr
 \subsection{Plasma shape}
 A general description of local magnetic equilibria particularly convenient for gyrokinetic codes was introduced by J. Candy in \cite {Candy:PPCF2009}. It is used in the GKDB with a few minor modifications.
 The plasma shape is described by specifying the distance of the constant poloidal flux contours to the reference point $(R_0,Z_0)$  normalised to $L_\tref$:
-$$ a_N(r,\theta) = \frac{1}{L_\tref}\sqrt{\left[R_{\Psi}(r,\theta)-R_0\right]^2 + \left[Z_{\Psi}(r,\theta)-Z_0\right]^2} $$
+$$ a_N(r,\theta) = \frac{1}{L_\tref}\sqrt{\left[R_{\Psi_0}(r,\theta)-R_0\right]^2 + \left[Z_{\Psi_0}(r,\theta)-Z_0\right]^2} $$
 To allow regressions in the database the flux surface contours are parametrised as 
 $$ a_N(r,\theta) = \sum_{n=0}^{N_{sh}} c_n \cos(n\theta) + s_n \sin(n\theta) $$
 The specification of the local magnetic equilibrium then requires $4N_{sh}+2$ terms, given at $r=r_0$, where $N_{sh}$ is the degree of the expansion: $\{c_n,s_n,\frac{\partial c_n}{\partial r_N},\frac{\partial s_n}{\partial r_N}\}$. Typically $N_{sh}\leq8$ is sufficient to capture most of the plasma shapes but higher values can be used when needed.
